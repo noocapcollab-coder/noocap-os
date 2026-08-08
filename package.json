@@ -1,0 +1,9 @@
+{
+  "name": "noocap-production-os",
+  "version": "1.0.0",
+  "private": true,
+  "description": "NOOCAP Production OS — live Notion-backed agency dashboard with login and write-back.",
+  "dependencies": {
+    "@notionhq/client": "^2.2.15"
+  }
+}

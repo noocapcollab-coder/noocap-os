@@ -8,26 +8,20 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#06070b; --glass:rgba(255,255,255,.045); --glass2:rgba(255,255,255,.028);
-    --line:rgba(255,255,255,.09); --line2:rgba(255,255,255,.14);
-    --txt:#f3f5fa; --muted:#9aa4b6; --faint:#646c7d;
-    --p0:#ff5860; --p1:#ff9838; --p2:#5b93ff; --p3:#818b9c;
-    --ok:#2fd39a; --warn:#ffc65a; --bad:#ff5860;
+    --bg:#06070b;--glass:rgba(255,255,255,.045);--glass2:rgba(255,255,255,.028);
+    --line:rgba(255,255,255,.09);--line2:rgba(255,255,255,.14);
+    --txt:#f3f5fa;--muted:#9aa4b6;--faint:#646c7d;
+    --p0:#ff5860;--p1:#ff9838;--p2:#5b93ff;--p3:#818b9c;
+    --ok:#2fd39a;--warn:#ffc65a;--bad:#ff5860;--accent:#5b8cff;
     --grad:linear-gradient(135deg,#5b8cff 0%,#8b5cff 55%,#2ec38b 130%);
-    --shadow:0 2px 6px rgba(0,0,0,.35), 0 18px 50px rgba(0,0,0,.5); --r:18px;
+    --shadow:0 2px 6px rgba(0,0,0,.35),0 18px 50px rgba(0,0,0,.5);--r:18px;
   }
   *{box-sizing:border-box}
-  html,body{margin:0;background:var(--bg);color:var(--txt);
-    font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-    font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden}
-  body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
-    background:radial-gradient(760px 460px at 82% -8%, rgba(91,140,255,.20), transparent 60%),
-      radial-gradient(680px 420px at 8% 4%, rgba(139,92,255,.16), transparent 58%),
-      radial-gradient(720px 560px at 60% 108%, rgba(46,195,139,.13), transparent 60%);}
+  html,body{margin:0;background:var(--bg);color:var(--txt);font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden}
+  body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(760px 460px at 82% -8%,rgba(91,140,255,.2),transparent 60%),radial-gradient(680px 420px at 8% 4%,rgba(139,92,255,.16),transparent 58%),radial-gradient(720px 560px at 60% 108%,rgba(46,195,139,.13),transparent 60%)}
   .wrap{max-width:1200px;margin:0 auto;padding:22px}.hide{display:none!important}
   #gate{min-height:100vh;display:grid;place-items:center;padding:26px 18px}
-  .logincard{width:100%;max-width:390px;background:var(--glass);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
-    border:1px solid var(--line);border-radius:24px;padding:36px 30px;box-shadow:var(--shadow);text-align:center}
+  .logincard{width:100%;max-width:390px;background:var(--glass);backdrop-filter:blur(22px);border:1px solid var(--line);border-radius:24px;padding:36px 30px;box-shadow:var(--shadow);text-align:center}
   .lock{width:60px;height:60px;border-radius:18px;margin:0 auto 20px;background:var(--grad);display:grid;place-items:center;font-size:26px;box-shadow:0 12px 34px rgba(91,140,255,.4)}
   .logincard h1{font-size:22px;margin:0 0 6px;letter-spacing:-.4px;font-weight:800}
   .logincard .sub{color:var(--muted);margin:0 0 26px;font-size:13.5px}
@@ -36,97 +30,87 @@
   .code input:focus{border-color:#5b8cff;box-shadow:0 0 0 3px rgba(91,140,255,.22);background:rgba(91,140,255,.06)}
   .err{color:var(--bad);font-size:12.5px;height:18px;margin:8px 0 0;opacity:0;transition:.2s}.err.show{opacity:1}
   .shake{animation:shake .38s}@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
-  .hint{margin-top:22px;font-size:12px;color:var(--faint)}.hint b{color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
-  #hintList{margin-top:10px;font-size:11.5px;color:var(--faint);line-height:1.9;text-align:left;background:var(--glass2);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
   header{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:6px 0 20px;margin-bottom:22px;border-bottom:1px solid var(--line)}
   .brand{display:flex;align-items:center;gap:12px}
   .logo{width:38px;height:38px;border-radius:11px;background:var(--grad);display:grid;place-items:center;font-weight:900;color:#fff;font-size:17px}
-  .brand h1{font-size:15px;margin:0;font-weight:800;letter-spacing:-.2px}.brand p{margin:0;color:var(--muted);font-size:12px}
+  .brand h1{font-size:15px;margin:0;font-weight:800}.brand p{margin:0;color:var(--muted);font-size:12px}
   .whoami{display:flex;align-items:center;gap:11px}.whoami .meta{text-align:right}.whoami .meta .n{font-weight:700;font-size:13px}.whoami .meta .r{font-size:11.5px;color:var(--muted)}
-  .switch{background:var(--glass);border:1px solid var(--line);color:var(--muted);border-radius:10px;padding:9px 13px;cursor:pointer;font-weight:600;font-size:12.5px;font-family:inherit;transition:.15s}
+  .switch{background:var(--glass);border:1px solid var(--line);color:var(--muted);border-radius:10px;padding:9px 13px;cursor:pointer;font-weight:600;font-size:12.5px;font-family:inherit}
   .switch:hover{color:var(--txt);border-color:var(--line2)}
   .greet{font-size:22px;font-weight:800;letter-spacing:-.5px;margin:0 0 4px}
   .greetsub{color:var(--muted);margin:0 0 22px;font-size:13.5px;max-width:820px}
   .tiles{display:grid;grid-template-columns:repeat(6,1fr);gap:13px;margin-bottom:22px}
-  .tile{background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:var(--r);padding:16px 17px;box-shadow:var(--shadow);position:relative;overflow:hidden;animation:rise .5s both}
-  .tile::after{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:var(--line2);opacity:.6}
+  .tile{background:var(--glass);border:1px solid var(--line);border-radius:var(--r);padding:16px 17px;box-shadow:var(--shadow);position:relative;overflow:visible}
+  .tile::after{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:var(--line2);opacity:.6;border-radius:var(--r) var(--r) 0 0}
   .tile.red::after{background:var(--bad)}.tile.amber::after{background:var(--warn)}.tile.blue::after{background:var(--p2)}.tile.green::after{background:var(--ok)}
-  .tile .n{font-size:29px;font-weight:900;letter-spacing:-1.5px;line-height:1}
-  .tile .l{font-size:12px;color:var(--muted);margin-top:6px}
+  .tile .n{font-size:29px;font-weight:900;letter-spacing:-1.5px;line-height:1}.tile .l{font-size:12px;color:var(--muted);margin-top:6px}
   .tile.red .n{color:var(--bad)}.tile.amber .n{color:var(--warn)}.tile.green .n{color:var(--ok)}
-  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
   .grid2{display:grid;grid-template-columns:1.35fr 1fr;gap:16px;align-items:start}
-  .card{background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;margin-bottom:16px;animation:rise .5s both}
-  .card h3{margin:0;padding:15px 17px;font-size:13px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;font-weight:700}
+  .card{background:var(--glass);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:visible;margin-bottom:16px}
+  .card h3{margin:0;padding:15px 17px;font-size:13px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;font-weight:700;border-radius:var(--r) var(--r) 0 0}
   .card h3 .ic{display:flex;align-items:center;gap:10px}.card h3 .sq{width:26px;height:26px;border-radius:8px;background:var(--glass2);border:1px solid var(--line);display:grid;place-items:center;font-size:13px}
   .card h3 .sub{color:var(--muted);font-weight:500;font-size:12px}.card .body{padding:8px 13px 13px}
   .empty{color:var(--faint);text-align:center;padding:24px 10px;font-size:13px}
-  .row{display:flex;align-items:center;gap:11px;padding:11px 9px;border-radius:11px;transition:.12s}.row:hover{background:var(--glass2)}.row + .row{border-top:1px solid var(--line)}
+  .row{display:flex;align-items:center;gap:11px;padding:11px 9px;border-radius:11px}.row:hover{background:var(--glass2)}.row+.row{border-top:1px solid var(--line)}
   .pri{font-size:10px;font-weight:800;padding:4px 8px;border-radius:7px;letter-spacing:.4px;flex:0 0 auto}
   .P0{background:rgba(255,88,96,.16);color:#ff9297}.P1{background:rgba(255,152,56,.16);color:#ffbb7e}.P2{background:rgba(91,147,255,.16);color:#9dbcff}.P3{background:rgba(129,139,156,.2);color:#c2c9d5}
-  .row .title{font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .row .meta{color:var(--muted);font-size:12px;flex:0 0 auto}
+  .row .title{font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.row .meta{color:var(--muted);font-size:12px;flex:0 0 auto}
   .badge{font-size:11px;padding:4px 10px;border-radius:20px;background:var(--glass2);color:var(--muted);flex:0 0 auto;border:1px solid var(--line)}
   .badge.red{color:#ff9297;border-color:rgba(255,88,96,.42)}.badge.amber{color:#ffcf7a;border-color:rgba(255,198,90,.42)}
   .eff{font-size:10px;font-weight:800;width:20px;height:20px;border-radius:6px;display:grid;place-items:center;background:var(--glass2);border:1px solid var(--line);color:var(--muted);flex:0 0 auto}
   .clientchip{font-size:10px;padding:2px 8px;border-radius:20px;background:rgba(139,92,255,.14);color:#c7b3ff;border:1px solid rgba(139,92,255,.3);flex:0 0 auto}
-  .cap{display:flex;align-items:center;gap:12px;padding:11px 8px}
-  .cap .name{width:92px;font-weight:600;flex:0 0 auto;display:flex;align-items:center;gap:8px}
+  .cap{display:flex;align-items:center;gap:12px;padding:11px 8px}.cap .name{width:92px;font-weight:600;flex:0 0 auto;display:flex;align-items:center;gap:8px}
   .mini{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:800;color:#08090d;flex:0 0 auto}
   .cap .track{flex:1;height:20px;border-radius:10px;background:var(--glass2);overflow:hidden;border:1px solid var(--line)}
   .cap .fill{height:100%;border-radius:10px 0 0 10px;transition:width .6s cubic-bezier(.2,.7,.2,1)}
   .cap .val{width:58px;text-align:right;color:var(--muted);font-size:12px;flex:0 0 auto;font-weight:600}
+  .lf{padding:13px 8px;border-top:1px solid var(--line)}.lf:first-child{border-top:none}
+  .lf .top{display:flex;justify-content:space-between;margin-bottom:9px}.lf .name{font-weight:600}.lf .stage{color:var(--muted);font-size:12px}
+  .steps{display:flex;gap:5px}.step{flex:1;height:8px;border-radius:4px;background:var(--glass2)}.step.done{background:var(--ok)}.step.now{background:var(--p2)}
   .kanban{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(196px,1fr);gap:13px;overflow-x:auto;padding-bottom:12px}
-  .kanban::-webkit-scrollbar{height:9px}.kanban::-webkit-scrollbar-thumb{background:var(--line2);border-radius:8px}
-  .col{background:var(--glass);border:1px solid var(--line);border-radius:15px;min-height:150px;animation:rise .5s both}
+  .col{background:var(--glass);border:1px solid var(--line);border-radius:15px;min-height:150px}
   .col h4{margin:0;padding:13px 14px;font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;font-weight:700}
   .col h4 .cnt{background:var(--glass2);border:1px solid var(--line);border-radius:20px;padding:1px 9px;font-size:11px}
   .col .stack{padding:11px;display:flex;flex-direction:column;gap:11px}
-  .kcard{background:var(--glass2);border:1px solid var(--line);border-radius:12px;padding:12px;transition:.13s}.kcard:hover{border-color:var(--line2);transform:translateY(-1px)}
-  .kcard .kt{font-weight:600;font-size:12.5px;margin:8px 0;line-height:1.35}
+  .kcard{background:var(--glass2);border:1px solid var(--line);border-radius:12px;padding:12px}.kcard .kt{font-weight:600;font-size:12.5px;margin:8px 0;line-height:1.35}
   .kcard .kmeta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.kcard .who{color:var(--muted);font-size:11px;display:flex;align-items:center;gap:5px}
   .wait{font-size:10px;color:#ffcf7a}.od{color:#ff9297}.unassigned{outline:1px dashed rgba(255,198,90,.5)}
-  .editor-cols{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}
-  .colnote{font-size:10.5px;color:var(--faint);padding:0 14px 10px;margin-top:-2px}
+  .editor-cols{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}.colnote{font-size:10.5px;color:var(--faint);padding:0 14px 10px;margin-top:-2px}
   .note{color:var(--faint);font-size:12px;margin:15px 2px 0}
   .filterbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:18px;background:var(--glass);border:1px solid var(--line);border-radius:14px;padding:11px 13px}
   .flabel{font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:.6px;margin-right:2px;font-weight:800}
-  .fchip{padding:6px 13px;border-radius:20px;border:1px solid var(--line);background:var(--glass2);color:var(--muted);cursor:pointer;font-size:12px;font-weight:600;font-family:inherit;transition:.12s}
-  .fchip:hover{border-color:var(--line2);color:var(--txt)}
-  .fchip.on{background:rgba(91,140,255,.18);border-color:rgba(91,140,255,.55);color:#bcd0ff}
+  .fchip{padding:6px 13px;border-radius:20px;border:1px solid var(--line);background:var(--glass2);color:var(--muted);cursor:pointer;font-size:12px;font-weight:600;font-family:inherit}
+  .fchip:hover{border-color:var(--line2);color:var(--txt)}.fchip.on{background:rgba(91,140,255,.18);border-color:rgba(91,140,255,.55);color:#bcd0ff}
   .fsep{width:1px;height:20px;background:var(--line);margin:0 5px}
   .searchbox{flex:1;min-width:150px;display:flex;align-items:center;gap:7px;background:var(--glass2);border:1px solid var(--line);border-radius:20px;padding:6px 13px}
   .searchbox input{background:none;border:none;outline:none;color:var(--txt);font-family:inherit;font-size:12.5px;width:100%}
-  .stagebar{display:flex;flex-wrap:wrap;gap:9px}
-  .stagepill{display:flex;align-items:center;gap:9px;background:var(--glass);border:1px solid var(--line);border-radius:12px;padding:11px 15px}
+  .stagebar{display:flex;flex-wrap:wrap;gap:9px}.stagepill{display:flex;align-items:center;gap:9px;background:var(--glass);border:1px solid var(--line);border-radius:12px;padding:11px 15px}
   .stagepill b{font-size:18px;font-weight:800;letter-spacing:-.5px}.stagepill span{color:var(--muted);font-size:12px}
-  .morelink{color:#9dbcff;cursor:default;font-size:12px;font-weight:600;padding:10px 9px 4px}
+  .morelink{color:#9dbcff;font-size:12px;font-weight:600;padding:10px 9px 4px}
   .agebadge{font-size:10px;color:#ff9297;font-weight:800;flex:0 0 auto}
-  .plainbox{background:rgba(91,140,255,.1);border:1px solid rgba(91,140,255,.3);border-radius:14px;padding:14px 17px;margin-bottom:18px;font-size:14.5px;color:var(--txt);line-height:1.6}
-  .plainbox b{font-weight:800}
-  .motive{display:flex;align-items:center;gap:12px;margin:2px 0 20px;padding:13px 16px;border-radius:14px;
-    background:linear-gradient(120deg,rgba(91,140,255,.16),rgba(139,92,255,.14) 60%,rgba(46,195,139,.12));
-    border:1px solid rgba(139,92,255,.32);animation:rise .5s both}
+  .plainbox{background:rgba(91,140,255,.1);border:1px solid rgba(91,140,255,.3);border-radius:14px;padding:14px 17px;margin-bottom:18px;font-size:14.5px;color:var(--txt);line-height:1.6}.plainbox b{font-weight:800}
+  .motive{display:flex;align-items:center;gap:12px;margin:2px 0 20px;padding:13px 16px;border-radius:14px;background:linear-gradient(120deg,rgba(91,140,255,.16),rgba(139,92,255,.14) 60%,rgba(46,195,139,.12));border:1px solid rgba(139,92,255,.32)}
   .motive .spark{width:30px;height:30px;border-radius:9px;background:var(--grad);display:grid;place-items:center;font-size:15px;flex:0 0 auto}
   .motive .mtext{font-size:13.5px;font-weight:600;color:var(--txt);line-height:1.45}
-  .keybox{background:var(--glass);border:1px solid var(--line);border-radius:14px;padding:15px 17px;margin-top:18px;font-size:12.5px;color:var(--muted);line-height:2}
-  .keybox b{color:var(--txt)}.keybox .k{display:inline-block;width:12px;height:12px;border-radius:4px;vertical-align:-1px;margin-right:5px}
+  .keybox{background:var(--glass);border:1px solid var(--line);border-radius:14px;padding:15px 17px;margin-top:18px;font-size:12.5px;color:var(--muted);line-height:2}.keybox b{color:var(--txt)}.keybox .k{display:inline-block;width:12px;height:12px;border-radius:4px;vertical-align:-1px;margin-right:5px}
   .info{display:inline-grid;place-items:center;width:16px;height:16px;border-radius:50%;border:1px solid var(--line2);color:var(--muted);font-size:10px;font-weight:800;cursor:help;position:relative;flex:0 0 auto;font-style:italic;font-family:Georgia,serif}
   .info:hover{color:#fff;border-color:var(--accent);background:var(--accent)}
-  .info:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 9px);right:-6px;width:210px;background:#0c0f15;border:1px solid var(--line2);border-radius:11px;padding:10px 12px;font:500 11.5px/1.55 "Inter",sans-serif;color:var(--txt);box-shadow:var(--shadow);z-index:80;text-align:left;letter-spacing:0;text-transform:none}
+  .info:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 9px);right:-6px;width:210px;background:#0c0f15;border:1px solid var(--line2);border-radius:11px;padding:10px 12px;font:500 11.5px/1.55 "Inter",sans-serif;color:var(--txt);box-shadow:var(--shadow);z-index:80;text-align:left}
   .info:hover::before{content:"";position:absolute;bottom:calc(100% + 4px);right:2px;border:5px solid transparent;border-top-color:var(--line2);z-index:80}
   .tileinfo{position:absolute;top:11px;right:12px}
-  .assignbtn{background:rgba(46,195,139,.16);border:1px solid rgba(46,195,139,.42);color:#7fe6c0;border-radius:8px;padding:5px 11px;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit;flex:0 0 auto;transition:.12s}
-  .assignbtn:hover{background:rgba(46,195,139,.3);color:#aef3d8}
-  .esel{background:rgba(46,195,139,.14);border:1px solid rgba(46,195,139,.4);color:#aef3d8;border-radius:8px;padding:5px 9px;font-size:11px;font-family:inherit;font-weight:700;cursor:pointer;max-width:160px;outline:none}
+  .assignbtn{background:rgba(46,195,139,.16);border:1px solid rgba(46,195,139,.42);color:#7fe6c0;border-radius:8px;padding:5px 11px;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit;flex:0 0 auto}
+  .assignbtn:hover{background:rgba(46,195,139,.3)}.assignbtn:disabled{opacity:.5;cursor:default}
+  .esel{background:rgba(46,195,139,.14);border:1px solid rgba(46,195,139,.4);color:#aef3d8;border-radius:8px;padding:5px 9px;font-size:11px;font-family:inherit;font-weight:700;cursor:pointer;max-width:170px;outline:none}
   .esel:hover{background:rgba(46,195,139,.24)}.esel option{background:#11141b;color:var(--txt);font-weight:600}
   .asset{font-size:11px;font-weight:700;padding:5px 10px;border-radius:8px;background:var(--glass2);border:1px solid var(--line2);color:var(--muted);text-decoration:none}
   .asset:hover{color:var(--txt);border-color:var(--accent)}
   .act{font-size:11px;font-weight:700;padding:5px 10px;border-radius:8px;background:var(--glass2);border:1px solid var(--line2);color:var(--muted);cursor:pointer;font-family:inherit}
-  .act.warn{border-color:rgba(255,120,120,.5);color:#ffb4b4}.act.warn:hover{background:rgba(255,90,90,.14)}
-  .act.go{border-color:rgba(90,220,150,.5);color:#8fe9bd}.act.go:hover{background:rgba(70,220,150,.14)}
+  .act:disabled{opacity:.5;cursor:default}
+  .act.warn{border-color:rgba(255,120,120,.5);color:#ffb4b4}.act.warn:hover:not(:disabled){background:rgba(255,90,90,.14)}
+  .act.go{border-color:rgba(90,220,150,.5);color:#8fe9bd}.act.go:hover:not(:disabled){background:rgba(70,220,150,.14)}
   .del{font-size:12px;padding:4px 8px;border-radius:8px;background:transparent;border:1px solid var(--line2);color:var(--faint);cursor:pointer;font-family:inherit;flex:0 0 auto;transition:.13s}
-  .del:hover{color:#ff9297;border-color:rgba(255,88,96,.5);background:rgba(255,88,96,.1)}
+  .del:hover:not(:disabled){color:#ff9297;border-color:rgba(255,88,96,.5);background:rgba(255,88,96,.1)}
+  .del:disabled{opacity:.5;cursor:default}
   .fmt{font-size:10px;font-weight:800;padding:2px 8px;border-radius:6px;letter-spacing:.3px;flex:0 0 auto}
   .fmt.lf{background:rgba(139,92,255,.16);color:#c7b3ff;border:1px solid rgba(139,92,255,.35)}
   .fmt.sf{background:rgba(56,200,214,.14);color:#8fe0ea;border:1px solid rgba(56,200,214,.32)}
@@ -150,26 +134,18 @@
   .fstep .fn{font-size:22px;font-weight:800;letter-spacing:-.5px;line-height:1}
   .fstep .fl{font-size:10.5px;color:var(--muted);margin-top:4px}
   .farr{align-self:center;color:var(--faint);font-size:15px;flex:0 0 auto}
-  #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(18px);background:#11141b;border:1px solid var(--line2);color:var(--txt);padding:12px 18px;border-radius:12px;box-shadow:var(--shadow);font-size:13px;font-weight:600;opacity:0;transition:.25s;z-index:200;pointer-events:none;max-width:90vw}
-  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   .chealth{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:11px;margin-bottom:18px}
-  .ccard{background:var(--glass);border:1px solid var(--line);border-radius:13px;padding:12px 14px;cursor:pointer;transition:.13s}
-  .ccard:hover{border-color:var(--line2);transform:translateY(-1px)}
-  .ccard.bad{border-color:rgba(255,88,96,.45)}
-  .cc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
-  .cc-total{font-size:19px;font-weight:800;letter-spacing:-.5px}
-  .cc-row{display:flex;gap:13px;font-size:11.5px;color:var(--muted)}
-  .tile{overflow:visible}.tile::after{border-radius:var(--r) var(--r) 0 0}
-  .card{overflow:visible}.card h3{border-radius:var(--r) var(--r) 0 0}
+  .ccard{background:var(--glass);border:1px solid var(--line);border-radius:13px;padding:12px 14px;cursor:pointer}.ccard:hover{border-color:var(--line2)}.ccard.bad{border-color:rgba(255,88,96,.45)}
+  .cc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}.cc-total{font-size:19px;font-weight:800}.cc-row{display:flex;gap:13px;font-size:11.5px;color:var(--muted)}
+  .loading{min-height:60vh;display:grid;place-items:center;color:var(--muted)}
   @media(max-width:900px){.tiles{grid-template-columns:repeat(3,1fr)}.grid2{grid-template-columns:1fr}.editor-cols{grid-template-columns:repeat(2,1fr)}}
   @media(max-width:520px){.tiles{grid-template-columns:repeat(2,1fr)}}
 
-  /* ===== ANIMATION LAYER ===================================================
-     1) drifting background blobs  2) hover/press micro-interactions
-     3) staggered card + column motion  4) loading skeleton shimmer
-     All disabled under prefers-reduced-motion (bottom of block).           */
+  /* ===== ANIMATION LAYER (mirrored from preview) =========================== */
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .tile,.card,.col{animation:rise .5s both}
 
-  /* 1 — animated background: slow-drifting colour blobs behind everything */
+  /* 1 — drifting background blobs */
   .bgfx{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
   .bgfx span{position:absolute;border-radius:50%;filter:blur(80px);opacity:.34;will-change:transform}
   .bgfx span:nth-child(1){width:540px;height:540px;top:-150px;left:-90px;
@@ -182,7 +158,7 @@
   @keyframes drift2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-60px,40px) scale(1.08)}}
   @keyframes drift3{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,-60px) scale(1.14)}}
 
-  /* 2 — micro-interactions: hover lift + press feedback */
+  /* 2 — hover lift + press feedback */
   .tile{transition:transform .2s cubic-bezier(.2,.7,.2,1),border-color .2s,box-shadow .2s}
   .tile:hover{transform:translateY(-3px);border-color:var(--line2);box-shadow:0 12px 36px rgba(0,0,0,.5)}
   .tile[onclick]{cursor:pointer}
@@ -242,8 +218,6 @@
       <input maxlength="1" inputmode="numeric"/><input maxlength="1" inputmode="numeric"/>
     </div>
     <p class="err" id="err">That code doesn't match anyone.</p>
-    <div class="hint">Previewing? <b onclick="document.getElementById('hintList').classList.toggle('hide')">Show demo codes</b>
-      <div id="hintList" class="hide"></div></div>
   </div>
 </div>
 <div id="app" class="wrap hide">
@@ -254,129 +228,35 @@
       <button class="switch" onclick="logout()">Sign out</button></div>
   </header>
   <div id="motive"></div>
-  <div id="dash"></div>
+  <div id="dash"><div class="loading">Loading your dashboard…</div></div>
 </div>
-<div id="toast"></div>
 <script>
-let toastT;function toast(m){const el=document.getElementById("toast");el.textContent=m;el.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove("show"),2400);}
-// ===== USERS (active editors only) =====
-const USERS=[
-  {name:"Harsh", role:"COO", code:"4471"},
-  {name:"Priya", role:"Ops / Traffic", code:"2208"},
-  {name:"Nisha", role:"Scriptwriter", code:"3310"},
-  {name:"Parvez", role:"Editor", code:"1120"},
-  {name:"Vicky", role:"Editor", code:"5502"},
-  {name:"Sumith", role:"Editor", code:"7789"},
-  {name:"Abhishek", role:"Editor", code:"6614"},
-  {name:"Prabal", role:"Editor", code:"9903"},
-];
-// ===== REAL DATA pulled from Notion (Valeri + Brad), snapshot =====
-// eff inferred: Long-form=L, Sponsor=M, Personal=S. Priority defaults P2 (unset in Notion).
-const RAW=[
-  {t:"If you've never used Claude Code, start here",client:"Valeri",type:"Personal",stage:"Ready to Post",owner:"Prabal",post:"2026-05-21"},
-  {t:"This Chinese guy made billions with AI",client:"Valeri",type:"Personal",stage:"Ready to Post",owner:"Prabal",post:"2026-06-30"},
-  {t:"Dokiee — sponsor",client:"Valeri",type:"Sponsor",stage:"Scripting",owner:null,post:null,wait:"Client"},
-  {t:"Claude Code tutorial: beginner to advanced",client:"Valeri",type:"Long-form",stage:"Editing",owner:"Vicky",post:null},
-  {t:"Claude + Instagram",client:"Valeri",type:"Personal",stage:"Ready to Post",owner:"Sumith",post:"2026-06-12"},
-  {t:"Unlimited IG carousels with Claude",client:"Valeri",type:"Long-form",stage:"Scripting",owner:null,post:null},
-  {t:"$10K cinematic websites with Claude",client:"Valeri",type:"Long-form",stage:"Editing",owner:"Vicky",post:null},
-  {t:"Stop prompting, do this instead",client:"Valeri",type:"Personal",stage:"Ready to Post",owner:"Abhishek",post:"2026-06-25"},
-  {t:"5 AI side hustles that pay more than a job",client:"Valeri",type:"Long-form",stage:"Scripting",owner:null,post:null,wait:"Client"},
-  {t:"Polsia — sponsor",client:"Valeri",type:"Sponsor",stage:"Review",owner:"Prabal",post:"2026-08-17",wait:"Client"},
-  {t:"Higgsfield — sponsor",client:"Valeri",type:"Sponsor",stage:"Intake",owner:null,post:null},
-  {t:"Build your own AI content agent",client:"Valeri",type:"Personal",stage:"Editing",owner:"Prabal",post:"2026-08-10"},
-  {t:"Notion AI agents deep-dive",client:"Chris",type:"Long-form",stage:"Ready to Edit",owner:"Vicky",post:"2026-08-22"},
-  {t:"5 Cursor tricks nobody uses",client:"Valeri",type:"Personal",stage:"Ready to Edit",owner:"Vicky",post:"2026-08-19"},
-  {t:"AI voiceover workflow, start to finish",client:"Chris",type:"Personal",stage:"Scripting",owner:"Vicky",post:"2026-08-27"},
-  {t:"Get 1000 Claude Code skills",client:"Valeri",type:"Personal",stage:"Editing",owner:"Abhishek",post:"2026-08-15"},
-  {t:"5 Claude Code plugins",client:"Valeri",type:"Personal",stage:"Editing",owner:"Abhishek",post:"2026-08-19"},
-  {t:"Fable 5+ Hermes agent",client:"Valeri",type:"Personal",stage:"Ready to Post",owner:"Sumith",post:"2026-08-07"},
-  {t:"Holo — sponsor",client:"Valeri",type:"Sponsor",stage:"Editing",owner:"Abhishek",post:"2026-08-20"},
-  {t:"Claude changed how we create skills",client:"Valeri",type:"Long-form",stage:"Scripting",owner:null,post:null},
-  {t:"China dropped a free version of Claude",client:"Valeri",type:"Personal",stage:"Review",owner:"Prabal",post:"2026-08-18",wait:"Client"},
-  {t:"$10,000 websites with Claude Design",client:"Valeri",type:"Personal",stage:"Ready to Post",owner:"Abhishek",post:"2026-07-16"},
-  {t:"Now Claude pays you for using Claude",client:"Valeri",type:"Personal",stage:"Review",owner:"Prabal",post:"2026-08-12",wait:"Client"},
-  {t:"GitHub godmode",client:"Valeri",type:"Personal",stage:"Ready to Post",owner:"Abhishek",post:"2026-08-13"},
-  {t:"This guy killed 1000s of jobs with one repo",client:"Valeri",type:"Personal",stage:"Ready to Post",owner:"Abhishek",post:"2026-08-11"},
-  {t:"China killed Claude Code",client:"Valeri",type:"Personal",stage:"Editing",owner:"Abhishek",post:"2026-08-14"},
-  {t:"Create scroll animations like this",client:"Valeri",type:"Personal",stage:"Ready to Post",owner:"Prabal",post:"2026-08-08"},
-  {t:"Relume",client:"Chris",type:"Sponsor",stage:"Review",owner:"Parvez",post:null,wait:"Client"},
-  {t:"Veed",client:"Chris",type:"Sponsor",stage:"Review",owner:"Parvez",post:null,wait:"Client"},
-  {t:"Softr",client:"Chris",type:"Sponsor",stage:"Ready to Post",owner:"Parvez",post:null},
-  {t:"Relume (v2)",client:"Chris",type:"Sponsor",stage:"Review",owner:"Parvez",post:"2026-04-01",wait:"Client"},
-  {t:"Accio",client:"Chris",type:"Sponsor",stage:"Ready to Post",owner:"Parvez",post:"2026-03-29"},
-  {t:"Multi camera angle from one image",client:"Chris",type:"Personal",stage:"Ready to Post",owner:"Sumith",post:null},
-  {t:"Brevo",client:"Chris",type:"Sponsor",stage:"Ready to Post",owner:"Sumith",post:null},
-  {t:"AI stack 2026",client:"Chris",type:"Personal",stage:"Ready to Post",owner:"Sumith",post:null},
-  {t:"Suno - 2",client:"Chris",type:"Sponsor",stage:"Ready to Post",owner:"Parvez",post:null},
-  {t:"Veed (v2)",client:"Chris",type:"Sponsor",stage:"Ready to Post",owner:"Sumith",post:null},
-  {t:"Top 3 free AI tools",client:"Chris",type:"Personal",stage:"Ready to Post",owner:null,post:null},
-  {t:"Suno - 1",client:"Chris",type:"Sponsor",stage:"Ready to Post",owner:"Parvez",post:null},
-  {t:"Anthropic courses",client:"Chris",type:"Long-form",stage:"Intake",owner:null,post:null},
-  {t:"Bluehost",client:"Chris",type:"Long-form",stage:"Editing",owner:null,post:null},
-  {t:"Motion control",client:"Chris",type:"Sponsor",stage:"Ready to Post",owner:"Sumith",post:null},
-  {t:"Emergent 3",client:"Chris",type:"Sponsor",stage:"Editing",owner:"Parvez",post:"2026-07-13"},
-  {t:"Bluehost — long form",client:"Chris",type:"Long-form",stage:"Ready to Edit",owner:null,post:"2026-07-18"},
-  {t:"Relume — long form",client:"Chris",type:"Long-form",stage:"Ready to Post",owner:null,post:"2026-06-30"},
-  {t:"Forget ElevenLabs & Whisper Flow",client:"Chris",type:"Personal",stage:"Ready to Post",owner:"Sumith",post:"2026-07-07"},
-  {t:"This AI clone got me 100K followers",client:"Chris",type:"Long-form",stage:"Ready to Post",owner:"Vicky",post:null},
-  {t:"Claude + Higgsfield = $12,000/mo",client:"Chris",type:"Long-form",stage:"Ready to Post",owner:"Vicky",post:null},
-  {t:"AI tools that create drone shots",client:"Chris",type:"Personal",stage:"Ready to Post",owner:"Parvez",post:"2026-07-24"},
-  {t:"Dazl — running two direction",client:"Chris",type:"Sponsor",stage:"Ready to Post",owner:"Sumith",post:null},
-  {t:"Polo AI",client:"Chris",type:"Sponsor",stage:"Ready to Post",owner:"Parvez",post:"2026-07-24"},
-  {t:"Effects for Higgsfield",client:"Chris",type:"Sponsor",stage:"Ready to Post",owner:"Parvez",post:"2026-07-24"},
-  {t:"Halliday",client:"Chris",type:"Sponsor",stage:"Intake",owner:null,post:null,wait:"Brief"},
-  {t:"Lovable x Wispr",client:"Chris",type:"Sponsor",stage:"Editing",owner:"Parvez",post:null},
-  {t:"Vox-style video with AI",client:"Chris",type:"Long-form",stage:"Scripting",owner:"Vicky",post:null,wait:"Client"},
-  {t:"Automate viral carousels with Claude",client:"Chris",type:"Long-form",stage:"Scripting",owner:null,post:null,wait:"Client"},
-  {t:"Paid vs free",client:"Chris",type:"Personal",stage:"Ready to Post",owner:"Sumith",post:null},
-  {t:"Claude + trial reels = cheat code",client:"Chris",type:"Long-form",stage:"Intake",owner:null,post:null},
-  {t:"Dazl — same page",client:"Chris",type:"Sponsor",stage:"Ready to Post",owner:"Sumith",post:null},
-  {t:"Higgsfield — make it personal",client:"Chris",type:"Personal",stage:"Editing",owner:"Sumith",post:null},
-  {t:"Claude Code + AI avatar = $9K/mo",client:"Chris",type:"Long-form",stage:"Scripting",owner:null,post:null,wait:"Client"},
-  {t:"Pippt",client:"Chris",type:"Sponsor",stage:"Scripting",owner:null,post:null,wait:"Client"},
-  {t:"Higgsfield — 6 Aug",client:"Chris",type:"Sponsor",stage:"Ready to Post",owner:"Prabal",post:null},
-  {t:"Heygen",client:"Chris",type:"Sponsor",stage:"Ready to Edit",owner:null,post:null},
-  {t:"Nano Banana Pro",client:"Brad",type:"Personal",stage:"Published",owner:"Parvez",post:"2025-11-28"},
-  {t:"Google dropped Gemini 3",client:"Brad",type:"Personal",stage:"Published",owner:"Parvez",post:"2025-11-26"},
-  {t:"Emergent — sponsor",client:"Brad",type:"Sponsor",stage:"Published",owner:"Parvez",post:"2026-01-26"},
-  {t:"Cursor 2.0 walkthrough",client:"Valeri",type:"Personal",stage:"Published",owner:"Sumith",post:"2026-08-07"},
-  {t:"n8n money machine",client:"Chris",type:"Long-form",stage:"Published",owner:"Vicky",post:"2026-08-06"},
-  {t:"Perplexity for research",client:"Valeri",type:"Personal",stage:"Published",owner:"Parvez",post:"2026-08-04"},
-  {t:"Notion AI setup",client:"Brad",type:"Personal",stage:"Published",owner:"Sumith",post:"2026-07-30"},
-  {t:"Claude vs GPT for code",client:"Valeri",type:"Sponsor",stage:"Published",owner:"Prabal",post:"2026-07-28"},
-  {t:"Midjourney v7 tips",client:"Chris",type:"Personal",stage:"Published",owner:"Vicky",post:"2026-07-22"},
-  {t:"Build a SaaS in a weekend",client:"Valeri",type:"Long-form",stage:"Published",owner:"Abhishek",post:"2026-07-15"},
-  {t:"Zapier alternatives",client:"Brad",type:"Personal",stage:"Published",owner:"Sumith",post:"2026-07-14"},
-  {t:"Free AI voice tools",client:"Chris",type:"Personal",stage:"Published",owner:"Parvez",post:"2026-07-08"},
-  {t:"Automate your inbox",client:"Valeri",type:"Personal",stage:"Published",owner:"Prabal",post:"2026-07-01"},
-];
-const EFF={"Long-form":"L","Sponsor":"M","Personal":"S"}, EFFPTS={S:0.5,M:0.5,L:2}, CAP=2; // days of work: short-form ½ day, long-form 2 days
-const TASKS=RAW.map((r,i)=>({...r, id:i, pri:"P2", eff:EFF[r.type]||"S", wait:r.wait||null}));
+// ===== config =====
+const EDITORS=["PARVEZ","VICKY","SUMITH","ABHISHEK","PRABAL"];
+const EFFPTS={S:0.5,M:0.5,L:2}, CAP=2, ACTIVE=["Scripting","Ready to Edit","Editing","Review"];
 const STAGES=["Intake","Scripting","Ready to Edit","Editing","Review","Ready to Post"];
-const ACTIVE=["Scripting","Ready to Edit","Editing","Review"];
-const EDITORS=USERS.filter(u=>u.role.startsWith("Editor")).map(u=>u.name);
 const order={P0:0,P1:1,P2:2,P3:3};
 const PRI={P0:"URGENT",P1:"SOON",P2:"NORMAL",P3:"LATER"};
 const FORM_URL="https://noocap.notion.site/e477c4080dbe4083bc21f505cc706095";
 const DISCORD_SERVER_ID="1406306400006705162";
-const threadUrl=t=>`https://discord.com/channels/${DISCORD_SERVER_ID}`;
-function reviewPanel(){
-  const items=TASKS.filter(t=>t.stage==="Review"||t.stage==="Changes");
-  const irow=t=>`<div class="row"><span class="clientchip">${t.client||"—"}</span><span class="title">${t.t}</span>${t.stage==="Changes"?`<span class="badge red">changes</span>`:`<span class="badge">in review</span>`}<a class="asset" href="#" onclick="return false">▶ Frame.io</a><a class="asset" href="${threadUrl(t)}" target="_blank" rel="noopener">💬 Thread</a>${t.stage!=="Changes"?`<button class="act warn" onclick="intakeStatus('${t.id}','Changes')">↩ Send to Changes</button>`:""}<button class="act go" onclick="intakeStatus('${t.id}','To Post')">✓ Approve → To Post</button><button class="del" title="Remove from dashboard — kept in Notion" onclick="delVideo('${t.id}')">📥</button></div>`;
-  return `<div class="card"><h3><span class="ic"><span class="sq">💬</span>In review &amp; changes <span class="info" data-tip="Submitted videos awaiting review, or sent back for changes. Jump into the Discord thread or open Frame.io.">i</span></span><span class="sub">${items.length}</span></h3><div class="body">${items.length?items.map(irow).join(""):'<div class="empty">Nothing in review right now.</div>'}</div></div>`;
-}
+const threadUrl=t=>t&&t.threadId?`https://discord.com/channels/${DISCORD_SERVER_ID}/${t.threadId}`:null;
+// Frame.io links are stored as plain URLs; make sure whatever we get opens as an
+// absolute link (prefix https:// if a bare value ever sneaks in) and is trimmed.
+const safeUrl=u=>{u=(u||"").trim();if(!u)return null;return /^https?:\/\//i.test(u)?u:"https://"+u;};
 const STAGEL={"Intake":"New idea","Scripting":"Writing script","Ready to Edit":"Ready to edit","Editing":"Editing","Review":"Checking","Ready to Post":"Ready to post"};
 const PALETTE=["#5b8cff","#2ec38b","#ff9838","#c879ff","#ff5860","#38c8d6","#ffc65a","#8b93ff"];
-const initials=n=>n.slice(0,2).toUpperCase();
-const colorFor=n=>PALETTE[[...n].reduce((s,c)=>s+c.charCodeAt(0),0)%PALETTE.length];
+const prettify=n=>n?n[0].toUpperCase()+n.slice(1).toLowerCase():n;
+const initials=n=>(n||"?").slice(0,2).toUpperCase();
+const colorFor=n=>PALETTE[[...(n||"?")].reduce((s,c)=>s+c.charCodeAt(0),0)%PALETTE.length];
 const mini=(n,s=22)=>`<span class="mini" style="width:${s}px;height:${s}px;background:${colorFor(n)}">${initials(n)}</span>`;
-const loadFor=n=>TASKS.filter(t=>t.owner===n&&ACTIVE.includes(t.stage)).reduce((s,t)=>s+EFFPTS[t.eff],0);
 const TODAY=new Date();TODAY.setHours(0,0,0,0);
 const MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+let CURRENT=null, TASKS=[], INTAKEX=[], INTAKEALL=[];
+const loadFor=n=>TASKS.filter(t=>t.owner===n&&ACTIVE.includes(t.stage)).reduce((s,t)=>s+(EFFPTS[t.effort]||0.5),0);
 function dueInfo(t){
-  if(!t.post)return{label:t.stage==="Intake"?"no date":"—",cls:""};
-  const d=new Date(t.post+"T00:00:00"),diff=Math.round((d-TODAY)/864e5),lab=MO[d.getMonth()]+" "+d.getDate();
+  if(!t.postDate)return{label:t.stage==="Intake"?"no date":"—",cls:""};
+  const d=new Date(t.postDate+"T00:00:00"),diff=Math.round((d-TODAY)/864e5),lab=MO[d.getMonth()]+" "+d.getDate();
   if(t.stage==="Published")return{label:"Posted "+lab};
   if(t.stage==="Ready to Post"&&diff<0)return{label:"Overdue "+lab,cls:"od",stuck:true};
   if(diff<0)return{label:"Late "+lab,cls:"od",overdue:true};
@@ -384,34 +264,24 @@ function dueInfo(t){
   if(diff<=3)return{label:"Post "+lab,soon:true};
   return{label:"Post "+lab};
 }
-// ===== LOGIN =====
+// ===== API =====
+async function apiTasks(){const r=await fetch("/api/tasks");if(r.status===401)return null;if(!r.ok)throw new Error((await r.json()).error);return r.json();}
+async function apiLogin(code){const r=await fetch("/api/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({code})});return r.ok?r.json():null;}
+async function apiUpdate(p){const r=await fetch("/api/update",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(p)});if(!r.ok)alert("Couldn't save: "+((await r.json()).error||r.status));return r.ok;}
+// ===== login flow =====
 const inputs=[...document.querySelectorAll("#codeInputs input")];
 inputs.forEach((el,i)=>{
-  el.addEventListener("input",()=>{el.value=el.value.replace(/[^0-9]/g,"");if(el.value&&i<3)inputs[i+1].focus();if(inputs.every(x=>x.value))tryCode();});
+  el.addEventListener("input",()=>{el.value=el.value.replace(/[^0-9]/g,"");if(el.value&&i<3)inputs[i+1].focus();if(inputs.every(x=>x.value))submitCode();});
   el.addEventListener("keydown",e=>{if(e.key==="Backspace"&&!el.value&&i>0)inputs[i-1].focus();});
 });
-document.getElementById("hintList").innerHTML=USERS.map(u=>`${u.name} · ${u.role} → <b style="color:var(--muted)">${u.code}</b>`).join("<br>");
-let CURRENT=null,OPS_CLIENT="All",OPS_TYPE="All",OPS_EDITOR="All",OPS_SEARCH="",OPS_BOARD=false;
-function setOpsFilter(k,v){if(k==="client")OPS_CLIENT=v;else if(k==="editor")OPS_EDITOR=v;else OPS_TYPE=v;opsView();}
-function setOpsSearch(v){OPS_SEARCH=v;opsView();const el=document.getElementById("opsSearch");if(el){el.focus();const n=el.value.length;el.setSelectionRange(n,n);}}
-function toggleBoard(){OPS_BOARD=!OPS_BOARD;opsView();}
-function assignTask(id,ed){const t=TASKS.find(x=>String(x.id)===String(id));if(t){t.owner=ed;if(t.wait==="Nobody"||!t.wait)t.wait=null;toast("✓ Assigned to "+ed);}renderDash();}
-function finishTask(id){const t=TASKS.find(x=>String(x.id)===String(id));if(t){t.stage="Review";t.wait="Client";toast('✓ "'+t.t+'" submitted — moved to In Review');}renderDash();}
-function edSelect(t,label){return `<select class="esel" onchange="if(this.value)assignTask('${t.id}',this.value)"><option value="">${label}</option>${EDITORS.map(e=>`<option value="${e}" ${t.owner===e?"selected":""}>${e} · ${loadFor(e)}/${CAP}d</option>`).join("")}</select>`;}
-function flagBlocked(id){const t=TASKS.find(x=>String(x.id)===String(id));if(t){t.wait="Ops";toast("⚑ Flagged blocked — Ops notified");}renderDash();}
-function submitForm(id){window.open(FORM_URL,"_blank");const t=TASKS.find(x=>String(x.id)===String(id));if(t){t.stage="Review";t.wait="Client";toast('✓ "'+t.t+'" submitted — moved to In review');}renderDash();}
-function intakeStatus(id,status){const t=TASKS.find(x=>String(x.id)===String(id));if(!t)return;if(status==="Changes"){t.stage="Changes";t.wait="Editor";toast('↩ "'+t.t+'" sent back for changes — Discord ping fired');}else{t.stage="Ready to Post";t.wait=null;toast('✓ "'+t.t+'" approved → To Post — team notified');}renderDash();}
-function delVideo(id){const i=TASKS.findIndex(x=>String(x.id)===String(id));if(i<0)return;const nm=TASKS[i].t;if(!confirm('Remove "'+nm+'" from the dashboard?\n\nIt stays in Notion (set to Archive) and just leaves every board here — reversible anytime.'))return;TASKS.splice(i,1);toast('📥 "'+nm+'" removed from dashboard — kept in Notion');renderDash();}
-const fmtBadge=t=>(t.type==="Long-form"||t.eff==="L")?'<span class="fmt lf">▬ Long</span>':'<span class="fmt sf">▪ Short</span>';
-function tryCode(){const c=inputs.map(x=>x.value).join(""),u=USERS.find(x=>x.code===c);
-  if(u)login(u);else{const e=document.getElementById("err"),k=document.getElementById("logincard");e.classList.add("show");k.classList.add("shake");
-  setTimeout(()=>k.classList.remove("shake"),400);setTimeout(()=>{inputs.forEach(x=>x.value="");inputs[0].focus();},450);}}
-function login(u){CURRENT=u;document.getElementById("err").classList.remove("show");
-  document.getElementById("gate").classList.add("hide");document.getElementById("app").classList.remove("hide");
-  document.getElementById("hName").textContent=(u.role.startsWith("Ops")||u.role.startsWith("Scriptwriter"))?"":u.name;document.getElementById("hRole").textContent=u.role;
-  const a=document.getElementById("hAvatar");a.textContent=initials(u.name);a.style.background=colorFor(u.name);
-  document.getElementById("today").textContent=new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"});
-  window.scrollTo(0,0);setMotive();enterDash();}
+async function submitCode(){
+  const code=inputs.map(x=>x.value).join("");
+  const u=await apiLogin(code);
+  if(u){await boot();}
+  else{const e=document.getElementById("err"),k=document.getElementById("logincard");e.classList.add("show");k.classList.add("shake");
+    setTimeout(()=>k.classList.remove("shake"),400);setTimeout(()=>{inputs.forEach(x=>x.value="");inputs[0].focus();},450);}
+}
+function logout(){fetch("/api/logout",{method:"POST"}).then(()=>{CURRENT=null;document.getElementById("motive").innerHTML="";document.getElementById("app").classList.add("hide");document.getElementById("gate").classList.remove("hide");inputs.forEach(x=>x.value="");inputs[0].focus();});}
 // A fresh line of encouragement each time someone signs in, tuned to their role.
 const MOTIVES={
   COO:[
@@ -445,139 +315,141 @@ const MOTIVES={
   ],
 };
 function roleKey(r){r=r||"";return r.startsWith("Ops")?"Ops":r==="COO"?"COO":r==="Scriptwriter"?"Scriptwriter":"Editor";}
-function setMotive(){
-  const el=document.getElementById("motive");if(!el||!CURRENT)return;
-  const arr=MOTIVES[roleKey(CURRENT.role)]||MOTIVES.Editor;
-  const m=arr[Math.floor(Math.random()*arr.length)];
-  el.innerHTML=`<div class="motive"><span class="spark">⚡</span><span class="mtext">${m}</span></div>`;
-}
-function logout(){document.getElementById("motive").innerHTML="";CURRENT=null;inputs.forEach(x=>x.value="");document.getElementById("app").classList.add("hide");document.getElementById("gate").classList.remove("hide");inputs[0].focus();}
-// ===== ROUTER =====
-function renderDash(){const r=CURRENT.role;if(r==="COO")return cooView();if(r.startsWith("Ops"))return opsView();if(r==="Scriptwriter")return scriptView();return editorView(CURRENT.name);}
-// Entrance = skeleton shimmer → render → count-up. Only runs on sign-in, so
-// in-place actions (approve, assign, etc.) refresh without the numbers flashing.
+function setMotive(){const el=document.getElementById("motive");if(!el||!CURRENT)return;const arr=MOTIVES[roleKey(CURRENT.role)]||MOTIVES.Editor;const m=arr[Math.floor(Math.random()*arr.length)];el.innerHTML=`<div class="motive"><span class="spark">⚡</span><span class="mtext">${m}</span></div>`;}
+async function reload(){const d=await apiTasks();if(d){TASKS=(d.tasks||[]).filter(t=>t.stage!=="Archived");INTAKEX=d.intake||[];INTAKEALL=d.intakeAll||[];renderDash();}}
+// Motion helpers — skeleton shimmer + count-up run only on the initial load
+// (boot), so in-place refreshes after actions don't re-flash the numbers.
 const REDUCED=window.matchMedia&&window.matchMedia("(prefers-reduced-motion:reduce)").matches;
 function skeletonHTML(){
-  const t='<div class="sk sk-tile"></div>';
-  const card='<div class="sk sk-card"></div>';
+  const t='<div class="sk sk-tile"></div>', card='<div class="sk sk-card"></div>';
   return `<div class="sk sk-greet"></div><div class="sk sk-sub"></div>
     <div class="sk-tiles">${t.repeat(6)}</div>
     <div class="sk-grid"><div>${card}</div><div>${card}</div></div>`;
 }
-function enterDash(){
-  if(REDUCED){renderDash();return;}
-  const dash=document.getElementById("dash");
-  dash.innerHTML=skeletonHTML();
-  setTimeout(()=>{renderDash();countUpAll();},560);
-}
 function countUpAll(){
   if(REDUCED)return;
   document.querySelectorAll(".tile .n, .stagepill b").forEach(el=>{
-    const raw=el.textContent.trim(), m=raw.match(/^(\d+)(.*)$/);
-    if(!m)return; const end=+m[1], suffix=m[2]||"";
-    if(end===0){el.classList.add("num-anim");return;}
-    el.classList.add("num-anim"); const dur=650, t0=performance.now();
+    const m=el.textContent.trim().match(/^(\d+)(.*)$/); if(!m)return;
+    const end=+m[1], suffix=m[2]||""; el.classList.add("num-anim");
+    if(end===0)return;
+    const dur=650, t0=performance.now();
     const step=now=>{const p=Math.min((now-t0)/dur,1),e=1-Math.pow(1-p,3);
       el.textContent=Math.round(end*e)+suffix; if(p<1)requestAnimationFrame(step);};
     el.textContent="0"+suffix; requestAnimationFrame(step);
   });
 }
-const greet=(s)=>`<h2 class="greet">Good morning, ${CURRENT.name} 👋</h2><p class="greetsub">${s}</p>`;
-const stag=(a)=>a.map((h,i)=>h.replace('animation:rise .5s both','animation:rise .5s both;animation-delay:'+(i*40)+'ms')).join("");
+async function boot(){
+  const d=await apiTasks();
+  if(!d){document.getElementById("app").classList.add("hide");document.getElementById("gate").classList.remove("hide");inputs[0].focus();return;}
+  CURRENT=d.user;TASKS=(d.tasks||[]).filter(t=>t.stage!=="Archived");INTAKEX=d.intake||[];INTAKEALL=d.intakeAll||[];
+  document.getElementById("gate").classList.add("hide");document.getElementById("app").classList.remove("hide");
+  document.getElementById("hName").textContent=(CURRENT.role.startsWith("Ops")||CURRENT.role.startsWith("Scriptwriter"))?"":CURRENT.name;document.getElementById("hRole").textContent=CURRENT.role;
+  const a=document.getElementById("hAvatar");a.textContent=initials(CURRENT.name);a.style.background=colorFor(CURRENT.name);
+  document.getElementById("today").textContent=new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"});
+  setMotive();
+  if(REDUCED){renderDash();return;}
+  document.getElementById("dash").innerHTML=skeletonHTML();
+  setTimeout(()=>{renderDash();countUpAll();},450);
+}
+// ===== render router =====
+function renderDash(){const r=CURRENT.role;if(r==="COO")return cooView();if(r==="Ops")return opsView();if(r==="Scriptwriter")return scriptView();return editorView();}
+const greet=s=>`<h2 class="greet">Hi ${CURRENT.name} 👋</h2><p class="greetsub">${s}</p>`;
 // ===== COO =====
-let COO_FILTER="all", COO_EXP_S=false, COO_EXP_L=false, COO_BOARD=false;
+let COO_FILTER="all";
+let COO_EXP_S=false, COO_EXP_L=false, COO_BOARD=false;
 function setCooFilter(k){COO_FILTER=(COO_FILTER===k?"all":k);COO_EXP_S=false;COO_EXP_L=false;cooView();}
 function cooMoreS(){COO_EXP_S=!COO_EXP_S;cooView();}
 function cooMoreL(){COO_EXP_L=!COO_EXP_L;cooView();}
 function cooBoardT(){COO_BOARD=!COO_BOARD;cooView();}
 function cooView(){
-  const dl=t=>{if(!t.post)return 0;const x=Math.round((TODAY-new Date(t.post+"T00:00:00"))/864e5);return x>0?x:0;};
-  const isBlockedUs=t=>t.wait&&!["Client","Nobody"].includes(t.wait);
-  const stuck=TASKS.filter(t=>dueInfo(t).stuck);
-  const today=TASKS.filter(t=>dueInfo(t).today);
-  const waitClient=TASKS.filter(t=>t.wait==="Client");
-  const editing=TASKS.filter(t=>t.stage==="Editing");
-  const scripting=TASKS.filter(t=>t.stage==="Scripting");
+  const dl=t=>{const d=t.postDate;if(!d)return 0;const x=Math.round((TODAY-new Date(d+"T00:00:00"))/864e5);return x>0?x:0;};
+  const isBlockedUs=t=>t.waitingOn&&!["Client","Nobody"].includes(t.waitingOn);
+  const stuck=TASKS.filter(t=>dueInfo(t).stuck),today=TASKS.filter(t=>dueInfo(t).today);
+  const waitClient=TASKS.filter(t=>t.waitingOn==="Client"),editing=TASKS.filter(t=>t.stage==="Editing"),scripting=TASKS.filter(t=>t.stage==="Scripting");
   const over=EDITORS.filter(n=>loadFor(n)>CAP), overSet=new Set(over);
-  // ---- speed / trend / stale metrics -------------------------------------
-  // Preview uses synthetic timings; the live app reads real Intake timestamps
-  // (Total Cycle hrs, Assigned At, Days Idle, Revisions, Posted At).
-  const HH=s=>{let h=7;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))%9973;return h;};
-  const daysInStage=t=>1+HH("s"+t.t)%9, cycleHrs=t=>18+HH("c"+t.t)%78, revs=t=>HH("r"+t.t)%4;
+  // --- speed / trend / stale metrics (from real Notion timestamps) ---
   const AS=["Scripting","Ready to Edit","Editing","Review"];
   const bn=AS.map(s=>({s,n:TASKS.filter(t=>t.stage===s).length})).reduce((a,b)=>b.n>a.n?b:a,{s:"—",n:0});
   const wip=TASKS.filter(t=>ACTIVE.includes(t.stage)).length;
-  const pub=TASKS.filter(t=>t.stage==="Published"&&t.post);
+  const daysSince=iso=>{if(!iso)return 0;const x=Math.floor((TODAY-new Date(iso))/864e5);return x>0?x:0;};
+  const pub=TASKS.filter(t=>t.stage==="Published"&&t.postDate);
   const weekOf=d=>Math.floor((TODAY-new Date(d+"T00:00:00"))/(7*864e5));
-  const shippedW=w=>pub.filter(t=>weekOf(t.post)===w).length;
+  const shippedW=w=>pub.filter(t=>weekOf(t.postDate)===w).length;
   const spark=[5,4,3,2,1,0].map(shippedW), smax=Math.max(...spark,1);
   const thisW=shippedW(0), lastW=shippedW(1), dW=thisW-lastW;
   const trend=dW>0?`<span class="up">▲${dW}</span>`:dW<0?`<span class="down">▼${-dW}</span>`:`<span class="flat">—</span>`;
   const sparkHtml=`<span class="sparkbars">${spark.map(v=>`<i style="height:${Math.round(v/smax*18)}px"></i>`).join("")}</span>`;
-  const cyc=pub.map(cycleHrs), avgCyc=cyc.length?Math.round(cyc.reduce((a,b)=>a+b,0)/cyc.length):0, slow=pub.filter(t=>cycleHrs(t)>72).length;
-  const stale=TASKS.filter(t=>ACTIVE.includes(t.stage)&&daysInStage(t)>=4).sort((a,b)=>daysInStage(b)-daysInStage(a));
+  const cycVals=INTAKEALL.map(t=>t.cycleHrs).filter(v=>typeof v==="number"&&v>0);
+  const avgCyc=cycVals.length?Math.round(cycVals.reduce((a,b)=>a+b,0)/cycVals.length):0, slow=cycVals.filter(v=>v>72).length;
+  const stale=TASKS.filter(t=>ACTIVE.includes(t.stage)&&daysSince(t.lastEdited)>=4).sort((a,b)=>daysSince(b.lastEdited)-daysSince(a.lastEdited));
   const pulse=`<div class="stagebar" style="margin-bottom:18px">
     <div class="stagepill" style="border-color:rgba(46,195,139,.4)"><b>${thisW}</b><span>✅ Shipped this week ${trend}</span>${sparkHtml}</div>
-    <div class="stagepill" style="border-color:rgba(91,140,255,.4)"><b>${avgCyc}h</b><span>⚡ Avg cycle${slow?` · ${slow} slow`:''}</span></div>
+    <div class="stagepill" style="border-color:rgba(91,140,255,.4)"><b>${avgCyc?avgCyc+'h':'—'}</b><span>⚡ Avg cycle${slow?` · ${slow} slow`:''}</span></div>
     <div class="stagepill" style="border-color:rgba(255,152,56,.45)"><b>${bn.n}</b><span>⛔ Bottleneck · ${STAGEL[bn.s]||bn.s}</span></div>
     <div class="stagepill"><b>${wip}</b><span>🎬 In production</span></div></div>`;
-  // --- pipeline funnel: how many sit in each stage, bottleneck flagged, click to drill in ---
+  // --- pipeline funnel: count per stage, bottleneck flagged, click to drill in ---
   const funStages=[["Intake","🌱 New idea"],["Scripting","✍️ Scripting"],["Ready to Edit","🎬 Ready to edit"],["Editing","✂️ Editing"],["Review","👀 Review"],["Ready to Post","✅ Ready to post"]];
   const funnel=`<div class="funnel">${funStages.map(([s,l],i)=>{const n=TASKS.filter(t=>t.stage===s).length,isB=(s===bn.s&&bn.n>0);return `<div class="fstep ${COO_FILTER===s?'active':''} ${isB?'bn':''}" onclick="setCooFilter('${s}')" title="Click to see these videos below"><div class="fn">${n}</div><div class="fl">${l}${isB?' ⛔':''}</div></div>${i<funStages.length-1?'<span class="farr">›</span>':''}`;}).join("")}</div>`;
-  // --- tiles double as filters for the queue below ---
   const tiles=[
-    {n:stuck.length,l:"📅 Ready, past date",c:stuck.length?"red":"green",f:"late"},
+    {n:stuck.length,l:"📅 Late — not posted",c:stuck.length?"red":"green",f:"late"},
     {n:today.length,l:"🟠 Posting today",c:today.length?"amber":"green",f:"today"},
     {n:waitClient.length,l:"💬 Waiting on client",c:"blue",f:"client"},
-    {n:editing.length,l:"✂️ In editing",c:"",f:"editing"},
-    {n:scripting.length,l:"✍️ In scripting",c:"",f:"scripting"},
-    {n:over.length,l:"⚠️ Overloaded editors",c:over.length?"red":"green",f:"over"},
+    {n:editing.length,l:"✂️ Being edited",c:"",f:"editing"},
+    {n:scripting.length,l:"✍️ Being scripted",c:"",f:"scripting"},
+    {n:over.length,l:"⚠️ Too much work",c:over.length?"red":"green",f:"over"},
   ];
   const tilesHtml=tiles.map(t=>`<div class="tile ${t.c} ${COO_FILTER===t.f?'active':''}" onclick="setCooFilter('${t.f}')"><div class="n">${t.n}</div><div class="l">${t.l}</div></div>`).join("");
-  // --- one prioritized queue, worst first ---
-  const rankOf=t=>{const d=dueInfo(t);if(d.stuck)return 0;if(t.stage==="Changes")return 1;if(d.today)return 1;if(t.stage==="Review")return 2;if(isBlockedUs(t))return 2;if(d.overdue)return 2;if(t.wait==="Client")return 3;return 99;};
-  const badgeOf=t=>{const d=dueInfo(t);
+  // --- one prioritized queue: board problems + intake review/changes ---
+  const rankB=t=>{const d=dueInfo(t);if(d.stuck)return 0;if(d.today)return 1;if(isBlockedUs(t))return 2;if(d.overdue)return 2;if(t.waitingOn==="Client")return 3;return 99;};
+  const badgeB=t=>{const d=dueInfo(t);
     if(d.stuck)return `<span class="badge red">late to post · ${dl(t)}d</span>`;
-    if(t.stage==="Changes")return '<span class="badge red">changes</span>';
     if(d.today)return '<span class="badge amber">post today</span>';
-    if(t.stage==="Review")return '<span class="badge">in review</span>';
-    if(isBlockedUs(t))return `<span class="badge amber">blocked · ${t.wait}</span>`;
+    if(isBlockedUs(t))return `<span class="badge amber">blocked · ${t.waitingOn}</span>`;
     if(d.overdue)return `<span class="badge">late ${dl(t)}d</span>`;
-    if(t.wait==="Client")return '<span class="badge">on client</span>';
+    if(t.waitingOn==="Client")return '<span class="badge">on client</span>';
     return `<span class="badge">${STAGEL[t.stage]||t.stage}</span>`;};
-  const preds={late:t=>dueInfo(t).stuck,today:t=>dueInfo(t).today,client:t=>t.wait==="Client",editing:t=>t.stage==="Editing",scripting:t=>t.stage==="Scripting",over:t=>overSet.has(t.owner)&&ACTIVE.includes(t.stage)};
+  const preds={late:t=>dueInfo(t).stuck,today:t=>dueInfo(t).today,client:t=>t.waitingOn==="Client",editing:t=>t.stage==="Editing",scripting:t=>t.stage==="Scripting",over:t=>overSet.has(t.owner)&&ACTIVE.includes(t.stage)};
   ["Intake","Scripting","Ready to Edit","Editing","Review","Ready to Post"].forEach(s=>preds[s]=t=>t.stage===s);
-  // Do-now queues carry board problems only; review/changes items get their own
-  // dedicated "In review & changes" card below (reviewPanel).
-  let list=COO_FILTER==="all"?TASKS.filter(t=>rankOf(t)<99&&!["Review","Changes"].includes(t.stage)):TASKS.filter(preds[COO_FILTER]||(()=>false));
-  list=list.slice().sort((a,b)=>rankOf(a)-rankOf(b)||dl(b)-dl(a));
-  const doRow=t=>{const badge=badgeOf(t);
-    if(t.stage==="Review"||t.stage==="Changes"){
-      return `<div class="row"><span class="clientchip">${t.client||"—"}</span><span class="title">${t.t}</span>${badge}<a class="asset" href="#" onclick="return false">▶ Frame.io</a>${t.stage!=="Changes"?`<button class="act warn" onclick="intakeStatus('${t.id}','Changes')">↩ Changes</button>`:""}<button class="act go" onclick="intakeStatus('${t.id}','To Post')">✓ Approve</button><button class="del" title="Remove from dashboard — kept in Notion" onclick="delVideo('${t.id}')">📥</button></div>`;}
-    return `<div class="row"><span class="title">${t.t}</span><span class="clientchip">${t.client}</span>${badge}${edSelect(t,t.owner?"Move ▾":"Assign ▾")}<button class="del" title="Remove from dashboard — kept in Notion" onclick="delVideo('${t.id}')">📥</button></div>`;};
-  const isLong=t=>(t.type==="Long-form"||t.eff==="L");
-  const shorts=list.filter(t=>!isLong(t)), longs=list.filter(isLong);
+  const boardRow=t=>`<div class="row"><span class="title">${t.title}</span><span class="clientchip">${t.client}</span>${badgeB(t)}${edSelect(t)}<button class="del" title="Remove from dashboard — kept in Notion" onclick="delVideo('${t.id}',this)">📥</button></div>`;
+  const revRow=t=>`<div class="row"><span class="clientchip">${t.client||"—"}</span><span class="title">${t.title}</span>${t.stage==="Changes"?'<span class="badge red">changes</span>':'<span class="badge">in review</span>'}${safeUrl(t.frame)?`<a class="asset" href="${safeUrl(t.frame)}" target="_blank" rel="noopener">▶ Frame.io</a>`:""}${threadUrl(t)?`<a class="asset" href="${threadUrl(t)}" target="_blank" rel="noopener">💬 Thread</a>`:""}${t.stage!=="Changes"?`<button class="act warn" onclick="intakeStatus('${t.id}','Changes',this)">↩ Changes</button>`:""}<button class="act go" onclick="intakeStatus('${t.id}','To Post',this)">✓ Approve</button><button class="del" title="Remove from dashboard — kept in Notion" onclick="delVideo('${t.id}',this)">📥</button></div>`;
+  // The do-now queues carry BOARD problems only. In-review / changes items keep
+  // their own dedicated "In review & changes" card below (reviewPanel), so the
+  // review workflow isn't scattered into these queues.
+  let rowsArr;
+  if(COO_FILTER==="all"){
+    rowsArr=TASKS.filter(t=>rankB(t)<99).map(t=>({t,rank:rankB(t),kind:"b"})).sort((a,b)=>a.rank-b.rank||dl(b.t)-dl(a.t));
+  } else {
+    rowsArr=TASKS.filter(preds[COO_FILTER]||(()=>false)).map(t=>({t,rank:rankB(t),kind:"b"})).sort((a,b)=>a.rank-b.rank||dl(b.t)-dl(a.t));
+  }
+  const rowOf=o=>o.kind==="r"?revRow(o.t):boardRow(o.t);
+  const isLongItem=o=>o.kind==="r"?(o.t.format==="Long"):(o.t.type==="Long-form"||o.t.effort==="L");
+  const longs=rowsArr.filter(isLongItem), shorts=rowsArr.filter(o=>!isLongItem(o));
   const queueCard=(arr,exp,fn,title,icon)=>{const LIM=exp?arr.length:8,shown=arr.slice(0,LIM);
     const more=arr.length>8?`<div class="morelink" style="cursor:pointer" onclick="${fn}()">${exp?"▲ Show less":"▾ Show all "+arr.length}</div>`:"";
-    const body=shown.length?shown.map(doRow).join("")+more:'<div class="empty">Nothing here 🎉</div>';
+    const body=shown.length?shown.map(rowOf).join("")+more:'<div class="empty">Nothing here 🎉</div>';
     return `<div class="card"><h3><span class="ic"><span class="sq">${icon}</span>${title}</span><span class="sub">worst first · ${arr.length}</span></h3><div class="body">${body}</div></div>`;};
-  const filterChip=COO_FILTER!=="all"?`<div style="margin:2px 2px 12px;font-size:12.5px;color:var(--muted)">Filtered to <b style="color:var(--txt)">${(tiles.find(x=>x.f===COO_FILTER)||{}).l||STAGEL[COO_FILTER]||COO_FILTER}</b> · ${list.length} <button class="switch" style="padding:3px 9px;margin-left:6px" onclick="setCooFilter('all')">clear ✕</button></div>`:"";
+  const filterChip=COO_FILTER!=="all"?`<div style="margin:2px 2px 12px;font-size:12.5px;color:var(--muted)">Filtered to <b style="color:var(--txt)">${(tiles.find(x=>x.f===COO_FILTER)||{}).l||STAGEL[COO_FILTER]||COO_FILTER}</b> · ${rowsArr.length} <button class="switch" style="padding:3px 9px;margin-left:6px" onclick="setCooFilter('all')">clear ✕</button></div>`:"";
   const edsSorted=[...EDITORS].sort((a,b)=>loadFor(b)-loadFor(a));
   const bnEd=edsSorted[0], bnOver=loadFor(bnEd)>CAP;
-  const scSub=bnOver?`⛔ Bottleneck · ${bnEd}`:"load · output · quality";
-  const scRow=n=>{const load=loadFor(n),mine=pub.filter(t=>t.owner===n),sh=mine.length,tt=mine.length?Math.round(mine.map(cycleHrs).reduce((a,b)=>a+b,0)/mine.length):0,rv=mine.length?mine.map(revs).reduce((a,b)=>a+b,0)/mine.length:0;
+  const scSub=bnOver?`⛔ Bottleneck · ${prettify(bnEd)}`:"load · output · quality";
+  const scRow=n=>{const load=loadFor(n);
+    const mine=INTAKEALL.filter(t=>(t.owner||"").toUpperCase()===n&&t.stage==="Posted");
+    const sh=TASKS.filter(t=>t.stage==="Published"&&t.owner===n).length||mine.length;
+    const cv=mine.map(t=>t.cycleHrs).filter(v=>typeof v==="number"&&v>0);
+    const tt=cv.length?Math.round(cv.reduce((a,b)=>a+b,0)/cv.length):0;
+    const rvv=mine.map(t=>t.revisions).filter(v=>typeof v==="number");
+    const rv=rvv.length?rvv.reduce((a,b)=>a+b,0)/rvv.length:0;
     const pct=Math.min(load/CAP,1)*100,col=load>CAP?"var(--bad)":load>=CAP?"var(--warn)":"var(--ok)",isBn=(n===bnEd&&bnOver);
-    return `<div class="sc"><div class="sc-top"><span class="name">${mini(n)}${n}${isBn?' <span class="bnchip">⛔ bottleneck</span>':''}</span><span class="sc-load ${load>CAP?'od':''}">${load}/${CAP}d${load>CAP?' ⚠':''}</span></div><div class="track"><div class="fill" style="width:${pct}%;background:${col}"></div></div><div class="sc-meta"><span>📦 ${sh} shipped</span><span>⚡ ${tt}h avg</span><span class="${rv>2?'bad':''}">🔁 ${rv.toFixed(1)} rev${rv>2?' ⚠':''}</span></div></div>`;};
+    return `<div class="sc"><div class="sc-top"><span class="name">${mini(n)}${prettify(n)}${isBn?' <span class="bnchip">⛔ bottleneck</span>':''}</span><span class="sc-load ${load>CAP?'od':''}">${load}/${CAP}d${load>CAP?' ⚠':''}</span></div><div class="track"><div class="fill" style="width:${pct}%;background:${col}"></div></div><div class="sc-meta"><span>📦 ${sh} shipped</span><span>⚡ ${tt?tt+'h avg':'—'}</span><span class="${rv>2?'bad':''}">🔁 ${rvv.length?rv.toFixed(1)+' rev'+(rv>2?' ⚠':''):'—'}</span></div></div>`;};
   const scorecard=edsSorted.map(scRow).join("");
   const clients=[...new Set(TASKS.map(t=>t.client))].map(c=>{const act=TASKS.filter(t=>t.client===c&&t.stage!=="Published").length,pb=TASKS.filter(t=>t.client===c&&t.stage==="Published").length;return `<div class="row"><span class="clientchip">${c}</span><span class="title" style="color:var(--muted);font-weight:500">${act} in production · ${pb} shipped</span></div>`;}).join("");
-  const staleRows=stale.length?stale.slice(0,8).map(t=>`<div class="row"><span class="title">${t.t}</span><span class="clientchip">${t.client}</span><span class="badge amber">${daysInStage(t)}d in ${STAGEL[t.stage]||t.stage}</span>${edSelect(t,t.owner?"Move ▾":"Assign ▾")}<button class="del" title="Remove from dashboard — kept in Notion" onclick="delVideo('${t.id}')">📥</button></div>`).join(""):'<div class="empty">Nothing stalling 🎉</div>';
+  const staleRows=stale.length?stale.slice(0,8).map(t=>`<div class="row"><span class="title">${t.title}</span><span class="clientchip">${t.client}</span><span class="badge amber">${daysSince(t.lastEdited)}d idle · ${STAGEL[t.stage]||t.stage}</span>${edSelect(t)}<button class="del" title="Remove from dashboard — kept in Notion" onclick="delVideo('${t.id}',this)">📥</button></div>`).join(""):'<div class="empty">Nothing stalling 🎉</div>';
   // --- full company board: every video, every stage, nothing hidden ---
   const cbStages=["Intake","Scripting","Ready to Edit","Editing","Review","Changes","Ready to Post","Published"];
   const cbTotal=TASKS.length, cbWip=TASKS.filter(t=>t.stage!=="Published").length;
   const cbStrip=`<div class="stagebar" style="flex-wrap:wrap">${cbStages.map(s=>{const n=TASKS.filter(t=>t.stage===s).length;return `<div class="stagepill" style="cursor:default"><b>${n}</b><span>${STAGEL[s]||s}</span></div>`;}).join("")}</div>`;
   const cbBoard=COO_BOARD?`<div class="kanban">${cbStages.map(st=>kcol(st,TASKS.filter(t=>t.stage===st))).join("")}</div>`:cbStrip;
-  document.getElementById("dash").innerHTML=`
-    ${greet("Two queues — short-form and long-form, worst thing first. Tap any number to filter, and act right from the row.")}
+  document.getElementById("dash").innerHTML=`${greet("Two queues — short-form and long-form, worst thing first. Tap any number to filter, and act right from the row.")}
     ${pulse}
     <div style="font-size:12px;font-weight:700;color:var(--muted);margin:2px 2px 8px">🔀 Pipeline — where every video stands <span class="info" data-tip="Count in each stage, left to right. The ⛔ stage is your bottleneck (most work piled up). Click any stage to see those exact videos in the queues below.">i</span></div>
     ${funnel}
@@ -592,129 +464,123 @@ function cooView(){
       <div><div class="card"><h3><span class="ic"><span class="sq">📊</span>Editor scorecard <span class="info" data-tip="Load vs capacity, plus each editor's shipped count, average turnaround, and revision rate. Sorted heaviest-load first, so your bottleneck editor is on top. More than 2 revisions usually means a briefing problem, not editing.">i</span></span><span class="sub">${scSub}</span></h3><div class="body">${scorecard}</div></div></div>
       <div><div class="card"><h3><span class="ic"><span class="sq">👥</span>Clients</span><span class="sub">active</span></h3><div class="body">${clients}</div></div></div>
     </div>
-    <div class="card"><h3><span class="ic"><span class="sq">⏳</span>Going stale <span class="info" data-tip="Videos sitting too long in one stage — even if not past a post date yet. Catch silent stalls before they become fires. Reassign or delete from any row.">i</span></span><span class="sub">${stale.length} stalling</span></h3><div class="body">${staleRows}</div></div>
+    <div class="card"><h3><span class="ic"><span class="sq">⏳</span>Going stale <span class="info" data-tip="Videos untouched too long in a stage — even if not past a post date yet. Catch silent stalls before they become fires. Reassign or delete from any row.">i</span></span><span class="sub">${stale.length} stalling</span></h3><div class="body">${staleRows}</div></div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin:24px 2px 12px">
       <span style="font-size:13px;font-weight:700;color:var(--muted)">🗂️ Everything in the company <span class="info" data-tip="Every video, every client, every stage — the full company board. Nothing is hidden here. Expand to see and act on each card.">i</span> <span style="color:var(--faint);font-weight:500">· ${cbWip} in production · ${cbTotal} total</span></span>
       <button class="switch" onclick="cooBoardT()">${COO_BOARD?"Collapse board":"Expand full board"}</button></div>
     ${cbBoard}
-    <p class="note">⚡ Every row is actionable — reassign, approve, or delete without leaving this screen. <b>${thisW}</b> shipped this week (${dW>=0?'+':''}${dW} vs last) · avg cycle <b>${avgCyc}h</b> · <b>${stale.length}</b> going stale.</p>`;
+    <p class="note">⚡ Every row is actionable — reassign, approve, or delete without leaving this screen. <b>${thisW}</b> shipped this week (${dW>=0?'+':''}${dW} vs last) · avg cycle <b>${avgCyc?avgCyc+'h':'—'}</b> · <b>${stale.length}</b> going stale.</p>`;
+}
+function reviewPanel(){
+  const irow=t=>`<div class="row"><span class="clientchip">${t.client||"—"}</span><span class="title">${t.title}</span>${t.stage==="Changes"?`<span class="badge red">changes</span>`:`<span class="badge">in review</span>`}${safeUrl(t.frame)?`<a class="asset" href="${safeUrl(t.frame)}" target="_blank" rel="noopener">▶ Frame.io</a>`:""}${threadUrl(t)?`<a class="asset" href="${threadUrl(t)}" target="_blank" rel="noopener">💬 Thread</a>`:""}${t.stage!=="Changes"?`<button class="act warn" onclick="intakeStatus('${t.id}','Changes',this)">↩ Send to Changes</button>`:""}<button class="act go" onclick="intakeStatus('${t.id}','To Post',this)">✓ Approve → To Post</button><button class="del" title="Remove from dashboard — kept in Notion" onclick="delVideo('${t.id}',this)">📥</button></div>`;
+  return `<div class="card"><h3><span class="ic"><span class="sq">💬</span>In review &amp; changes <span class="info" data-tip="Videos submitted and awaiting review, or sent back for changes. Jump into the Discord thread or open Frame.io.">i</span></span><span class="sub">${INTAKEX.length}</span></h3><div class="body">${INTAKEX.length?INTAKEX.map(irow).join(""):'<div class="empty">Nothing in review right now.</div>'}</div></div>`;
 }
 function capBar(n){const load=loadFor(n),pct=Math.min(load/CAP,1)*100,col=load>CAP?"var(--bad)":load>=CAP?"var(--warn)":"var(--ok)";
-  return `<div class="cap"><span class="name">${mini(n)}${n}</span><div class="track"><div class="fill" style="width:${pct}%;background:${col}"></div></div><span class="val">${load}/${CAP}d${load>CAP?' ⚠':''}</span></div>`;}
+  return `<div class="cap"><span class="name">${mini(n)}${prettify(n)}</span><div class="track"><div class="fill" style="width:${pct}%;background:${col}"></div></div><span class="val">${load}/${CAP}d${load>CAP?" ⚠":""}</span></div>`;}
 // ===== OPS =====
+let OC="All",OT="All",OE="All",OQ="",OB=false;
+function setF(k,v){({client:()=>OC=v,editor:()=>OE=v,type:()=>OT=v})[k]();opsView();}
+function setQ(v){OQ=v;opsView();const el=document.getElementById("opsSearch");if(el){el.focus();el.setSelectionRange(el.value.length,el.value.length);}}
+function tog(){OB=!OB;opsView();}
+async function assign(id,client,tag,btn){if(btn)btn.disabled=true;const ok=await apiUpdate({pageId:id,client,field:"owner",value:tag});if(ok)await reload();}
+async function assignSel(id,client,tag){if(!tag)return;const ok=await apiUpdate({pageId:id,client,field:"owner",value:tag});if(ok)await reload();}
+function edSelect(t){return `<select class="esel" onchange="assignSel('${t.id}','${t.client}',this.value)"><option value="">${t.owner?"Move ▾":"Assign ▾"}</option>${EDITORS.map(e=>`<option value="${e}" ${t.owner===e?"selected":""}>${prettify(e)} · ${loadFor(e)}/${CAP}d</option>`).join("")}</select>`;}
+async function flagBlocked(id,client,btn){if(btn)btn.disabled=true;const ok=await apiUpdate({pageId:id,client,field:"waitingOn",value:"Ops"});if(ok)await reload();else if(btn)btn.disabled=false;}
+async function submitForm(id,client){window.open(FORM_URL,"_blank");const ok=await apiUpdate({pageId:id,client,field:"status",value:"9- Approval Brand/Creator"});if(ok)await reload();}
+async function apiSubmit(p){const r=await fetch("/api/submit",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(p)});if(!r.ok){alert("Couldn't submit: "+((await r.json()).error||r.status));return false;}return true;}
+async function intakeStatus(id,status,btn){if(!confirm(status==="Changes"?"Send this back to the editor for changes? This fires the Discord ping.":"Approve and move to To Post? This notifies the team in Discord."))return;if(btn)btn.disabled=true;const ok=await apiUpdate({pageId:id,source:"intake",value:status});if(ok)await reload();else if(btn)btn.disabled=false;}
+const fmtBadge=t=>(t.type==="Long-form"||t.effort==="L")?'<span class="fmt lf">▬ Long</span>':'<span class="fmt sf">▪ Short</span>';
+async function delVideo(id,btn){const b=TASKS.find(x=>x.id===id);const t=b||INTAKEX.find(x=>x.id===id);const nm=t?t.title:"this video";if(!confirm('Remove "'+nm+'" from the dashboard?\n\nIt stays in Notion (set to Archive) and leaves every board here. Reversible anytime by changing its status back.'))return;if(btn)btn.disabled=true;const body=b?{pageId:id,client:b.client,action:"remove"}:{pageId:id,source:"intake",action:"remove"};const ok=await apiUpdate(body);if(ok)await reload();else if(btn)btn.disabled=false;}
+async function submitReview(id,btn){
+  const t=TASKS.find(x=>x.id===id);if(!t)return;
+  const frame=prompt('Paste the Frame.io review link for "'+t.title+'":');
+  if(!frame)return;
+  if(btn)btn.disabled=true;
+  const ok=await apiSubmit({pageId:t.id,client:t.client,frame});
+  if(ok){await reload();}else if(btn)btn.disabled=false;
+}
 function opsView(){
-  const CLIENTS=[...new Set(TASKS.map(t=>t.client))], TYPES=["Personal","Sponsor","Long-form"];
-  const q=OPS_SEARCH.trim().toLowerCase();
-  const FT=TASKS.filter(t=>(OPS_CLIENT==="All"||t.client===OPS_CLIENT)&&(OPS_TYPE==="All"||t.type===OPS_TYPE)&&(OPS_EDITOR==="All"||t.owner===OPS_EDITOR)&&(!q||t.t.toLowerCase().includes(q)));
-  const chip=(k,v,cur)=>`<button class="fchip ${cur===v?'on':''}" onclick="setOpsFilter('${k}','${v}')">${v}</button>`;
-  const filterbar=`<div class="filterbar">
-    <span class="flabel">Client</span>${["All",...CLIENTS].map(c=>chip("client",c,OPS_CLIENT)).join("")}
-    <span class="fsep"></span><span class="flabel">Editor</span>${["All",...EDITORS].map(e=>chip("editor",e,OPS_EDITOR)).join("")}
-    <span class="fsep"></span><span class="flabel">Type</span>${["All",...TYPES].map(t=>chip("type",t,OPS_TYPE)).join("")}
-    <div class="searchbox">🔍<input id="opsSearch" placeholder="Search all videos…" value="${OPS_SEARCH.replace(/"/g,'&quot;')}" oninput="setOpsSearch(this.value)"></div></div>`;
-  const daysLate=t=>{if(!t.post)return 0;const diff=Math.round((TODAY-new Date(t.post+"T00:00:00"))/864e5);return diff>0?diff:0;};
-  const daysUntil=t=>t.post?Math.round((new Date(t.post+"T00:00:00")-TODAY)/864e5):null;
+  const CLIENTS=[...new Set(TASKS.map(t=>t.client))],TYPES=["Personal","Sponsor","Long-form"];
+  const q=OQ.trim().toLowerCase();
+  const FT=TASKS.filter(t=>(OC==="All"||t.client===OC)&&(OT==="All"||t.type===OT)&&(OE==="All"||t.owner===OE)&&(!q||t.title.toLowerCase().includes(q)));
+  const chip=(k,v,cur)=>`<button class="fchip ${cur===v?"on":""}" onclick="setF('${k}','${v}')">${k==="editor"?prettify(v):v}</button>`;
+  const filterbar=`<div class="filterbar"><span class="flabel">Client</span>${["All",...CLIENTS].map(c=>chip("client",c,OC)).join("")}<span class="fsep"></span><span class="flabel">Editor</span>${["All",...EDITORS].map(e=>chip("editor",e,OE)).join("")}<span class="fsep"></span><span class="flabel">Type</span>${["All",...TYPES].map(t=>chip("type",t,OT)).join("")}<div class="searchbox">🔍<input id="opsSearch" placeholder="Search all videos…" value="${OQ.replace(/"/g,"&quot;")}" oninput="setQ(this.value)"></div></div>`;
+  const daysLate=t=>{if(!t.postDate)return 0;const d=Math.round((TODAY-new Date(t.postDate+"T00:00:00"))/864e5);return d>0?d:0;};
+  const daysUntil=t=>t.postDate?Math.round((new Date(t.postDate+"T00:00:00")-TODAY)/864e5):null;
   const bestEditor=()=>[...EDITORS].sort((a,b)=>loadFor(a)-loadFor(b))[0];
-  const ts=t=>t.post?new Date(t.post+"T00:00:00").getTime():Infinity;
+  const ts=t=>t.postDate?new Date(t.postDate+"T00:00:00").getTime():Infinity;
   const unassigned=FT.filter(t=>!t.owner&&t.stage!=="Published").sort((a,b)=>daysLate(b)-daysLate(a)||ts(a)-ts(b));
-  const waitClient=FT.filter(t=>t.wait==="Client");
-  const stuck=FT.filter(t=>dueInfo(t).stuck);
-  const blockedOther=FT.filter(t=>t.wait&&!["Client","Nobody"].includes(t.wait));
-  const over=EDITORS.filter(n=>loadFor(n)>CAP), free=EDITORS.filter(n=>loadFor(n)<CAP);
+  const waitClient=FT.filter(t=>t.waitingOn==="Client"),stuck=FT.filter(t=>dueInfo(t).stuck);
+  const blockedOther=FT.filter(t=>t.waitingOn&&!["Client","Nobody"].includes(t.waitingOn));
+  const over=EDITORS.filter(n=>loadFor(n)>CAP),free=EDITORS.filter(n=>loadFor(n)<CAP);
   const wip=FT.filter(t=>ACTIVE.includes(t.stage)).length;
   const tiles=[
-    {n:unassigned.length,l:"👤 Needs someone",c:unassigned.length?"amber":"green",tip:"Videos with no editor yet. Give each one an owner so work can start."},
-    {n:waitClient.length,l:"💬 Waiting on client",c:"blue",tip:"Done on our side — we're waiting for the customer to reply, approve, or send something."},
-    {n:stuck.length,l:"📅 Late — not posted",c:stuck.length?"red":"green",tip:"These were ready but their post date already passed. Get them published."},
-    {n:over.length,l:"⚠️ Too much work",c:over.length?"red":"green",tip:"Editors carrying more than a healthy load. Move some work to someone with room."},
-    {n:wip,l:"✂️ Being made",c:"",tip:"Videos actively in scripting, editing or checking right now."},
-    {n:FT.filter(t=>t.stage==="Ready to Post").length,l:"✅ Ready to post",c:"green",tip:"Finished and approved — just needs to be published."},
+    {n:unassigned.length,l:"👤 Needs someone",c:unassigned.length?"amber":"green",tip:"Videos with no editor yet. Give each one an owner."},
+    {n:waitClient.length,l:"💬 Waiting on client",c:"blue",tip:"Done on our side — waiting on the customer."},
+    {n:stuck.length,l:"📅 Late — not posted",c:stuck.length?"red":"green",tip:"Ready but the post date already passed."},
+    {n:over.length,l:"⚠️ Too much work",c:over.length?"red":"green",tip:"Editors over a healthy load. Move work to someone free."},
+    {n:wip,l:"✂️ Being made",c:"",tip:"Actively in scripting, editing or checking."},
+    {n:FT.filter(t=>t.stage==="Ready to Post").length,l:"✅ Ready to post",c:"green",tip:"Finished and approved — just needs publishing."},
   ];
   const CAPN=8;
-  const opsRow=(t,badge)=>{const dl=daysLate(t);
-    return `<div class="row"><span class="eff">${t.eff}</span><span class="title">${t.t}</span><span class="clientchip">${t.client}</span>${dl?`<span class="agebadge">${dl}d late</span>`:""}${badge}<button class="del" title="Remove from dashboard — kept in Notion" onclick="delVideo('${t.id}')">📥</button></div>`;};
-  const listBox=(arr,rowFn,empty)=>arr.length?arr.slice(0,CAPN).map(rowFn).join("")+(arr.length>CAPN?`<div class="morelink">+ ${arr.length-CAPN} more — filter or search to narrow</div>`:""):`<div class="empty">${empty}</div>`;
-  const assignList=listBox(unassigned,t=>opsRow(t,edSelect(t,"Assign ▾")),"Nothing waiting for an owner 🎉");
+  const ageB=t=>{const dl=daysLate(t);return dl?`<span class="agebadge">${dl}d late</span>`:"";};
+  const rowBase=(t,badge)=>`<div class="row"><span class="eff">${t.effort}</span><span class="title">${t.title}</span><span class="clientchip">${t.client}</span>${ageB(t)}${badge}<button class="del" title="Remove from dashboard — kept in Notion" onclick="delVideo('${t.id}',this)">📥</button></div>`;
+  const listBox=(arr,fn,empty)=>arr.length?arr.slice(0,CAPN).map(fn).join("")+(arr.length>CAPN?`<div class="morelink">+ ${arr.length-CAPN} more — filter or search to narrow</div>`:""):`<div class="empty">${empty}</div>`;
+  const assignList=listBox(unassigned,t=>rowBase(t,edSelect(t)),"Nothing waiting for an owner 🎉");
   const chase=[...stuck,...waitClient,...blockedOther].filter((v,i,a)=>a.indexOf(v)===i).sort((a,b)=>daysLate(b)-daysLate(a));
-  const chaseList=listBox(chase,t=>opsRow(t,t.wait&&t.wait!=="Nobody"?`<span class="badge amber">${t.wait}</span>`:`<span class="badge red">late</span>`),"Nothing to chase 🎉");
+  const chaseList=listBox(chase,t=>rowBase(t,t.waitingOn&&t.waitingOn!=="Nobody"?`<span class="badge amber">${t.waitingOn}</span>`:`<span class="badge red">late</span>`),"Nothing to chase 🎉");
   const soon=FT.filter(t=>t.stage!=="Published"&&daysUntil(t)!==null&&daysUntil(t)<=2).sort((a,b)=>daysUntil(a)-daysUntil(b));
-  const soonList=listBox(soon,t=>{const du=daysUntil(t);const b=du<0?"":du===0?`<span class="badge amber">today</span>`:`<span class="badge">in ${du}d</span>`;return opsRow(t,b);},"Nothing due in the next 2 days 🎉");
-  const clientStrip=`<div class="chealth">`+[...new Set(TASKS.map(t=>t.client))].map(c=>{const it=TASKS.filter(t=>t.client===c&&t.stage!=="Published");const late=it.filter(t=>{const d=dueInfo(t);return d.stuck||d.overdue||d.today;}).length;const waiting=it.filter(t=>t.wait&&t.wait!=="Nobody").length;return `<div class="ccard ${late?"bad":""}" onclick="setOpsFilter('client','${c}')"><div class="cc-top"><span class="clientchip">${c}</span><span class="cc-total">${it.length}</span></div><div class="cc-row"><span style="color:${late?"#ff9297":"var(--faint)"}">${late} late</span><span>${waiting} waiting</span></div></div>`;}).join("")+`</div>`;
+  const soonList=listBox(soon,t=>{const du=daysUntil(t);const b=du<0?"":du===0?`<span class="badge amber">today</span>`:`<span class="badge">in ${du}d</span>`;return rowBase(t,b);},"Nothing due in the next 2 days 🎉");
+  const clientStrip=`<div class="chealth">`+[...new Set(TASKS.map(t=>t.client))].map(c=>{const it=TASKS.filter(t=>t.client===c&&t.stage!=="Published");const late=it.filter(t=>{const d=dueInfo(t);return d.stuck||d.overdue||d.today;}).length;const waiting=it.filter(t=>t.waitingOn&&t.waitingOn!=="Nobody").length;return `<div class="ccard ${late?"bad":""}" onclick="setF('client','${c}')"><div class="cc-top"><span class="clientchip">${c}</span><span class="cc-total">${it.length}</span></div><div class="cc-row"><span style="color:${late?"#ff9297":"var(--faint)"}">${late} late</span><span>${waiting} waiting</span></div></div>`;}).join("")+`</div>`;
   const cap=EDITORS.map(capBar).join("");
-  const hint=over.length?`Shift work from <b style="color:var(--txt)">${over.join(", ")}</b> (over ${CAP} days of work) to <b style="color:var(--txt)">${free.join(", ")||"nobody free"}</b>.`:"Load looks balanced across editors.";
-  const filtered=OPS_CLIENT!=="All"||OPS_TYPE!=="All"||OPS_EDITOR!=="All"||q;
-  const flabel=filtered?` <span style="color:var(--faint);font-weight:500">· ${[OPS_CLIENT!=="All"?OPS_CLIENT:"",OPS_EDITOR!=="All"?OPS_EDITOR:"",OPS_TYPE!=="All"?OPS_TYPE:"",q?'"'+OPS_SEARCH+'"':""].filter(Boolean).join(" · ")} → ${FT.length} videos</span>`:` <span style="color:var(--faint);font-weight:500">· ${FT.length} videos</span>`;
-  const board=OPS_BOARD?`<div class="kanban">${STAGES.map(st=>kcol(st,FT.filter(t=>t.stage===st))).join("")}</div>`
-    :`<div class="stagebar">${STAGES.map(st=>`<div class="stagepill"><b>${FT.filter(t=>t.stage===st).length}</b><span>${STAGEL[st]||st}</span></div>`).join("")}</div>`;
-  const plain=`<div class="plainbox">📣 <b>In plain words:</b> ${stuck.length} ${stuck.length===1?"video is":"videos are"} late to post, ${unassigned.length} ${unassigned.length===1?"needs":"need"} someone to start, and ${over.length} ${over.length===1?"editor has":"editors have"} too much on their plate right now.</div>`;
-  const key=`<div class="keybox"><b>What the colours mean —</b> <span class="k" style="background:var(--ok)"></span>green = all good, <span class="k" style="background:var(--bad)"></span>red = fix this now, <span class="k" style="background:var(--warn)"></span>yellow = keep an eye on it.<br>
-    <b>S / M = short-form</b> (~½ day, 2 a day), <b>L = long-form</b> (~2 days). &nbsp; <b>"Waiting on client"</b> = we're waiting on the customer, not us. &nbsp; <b>"3d late"</b> = 3 days past its post date.</div>`;
-  document.getElementById("dash").innerHTML=`
-    <h2 class="greet">Good morning 👋</h2><p class="greetsub">Everything for every client on one screen. Start at the top and work down.</p>
-    ${plain}
-    ${filterbar}
+  const hint=over.length?`Shift work from <b style="color:var(--txt)">${over.map(prettify).join(", ")}</b> (over ${CAP} days) to <b style="color:var(--txt)">${free.map(prettify).join(", ")||"nobody free"}</b>.`:"Load looks balanced across editors.";
+  const board=OB?`<div class="kanban">${STAGES.map(st=>kcol(st,FT.filter(t=>t.stage===st))).join("")}</div>`:`<div class="stagebar">${STAGES.map(st=>`<div class="stagepill"><b>${FT.filter(t=>t.stage===st).length}</b><span>${STAGEL[st]}</span></div>`).join("")}</div>`;
+  const plain=`<div class="plainbox">📣 <b>In plain words:</b> ${stuck.length} ${stuck.length===1?"video is":"videos are"} late to post, ${unassigned.length} ${unassigned.length===1?"needs":"need"} someone to start, and ${over.length} ${over.length===1?"editor has":"editors have"} too much on their plate.</div>`;
+  const key=`<div class="keybox"><b>What the colours mean —</b> <span class="k" style="background:var(--ok)"></span>green = all good, <span class="k" style="background:var(--bad)"></span>red = fix this now, <span class="k" style="background:var(--warn)"></span>yellow = keep an eye on it.<br><b>S / M = short-form</b> (~½ day), <b>L = long-form</b> (~2 days). &nbsp; <b>"Waiting on client"</b> = the ball's with the customer. &nbsp; <b>"3d late"</b> = 3 days past its post date.</div>`;
+  document.getElementById("dash").innerHTML=`<h2 class="greet">Good morning 👋</h2><p class="greetsub">Everything for every client on one screen. Start at the top and work down.</p>${plain}${filterbar}
     <div class="tiles">${tiles.map(t=>`<div class="tile ${t.c}"><span class="info tileinfo" data-tip="${t.tip}">i</span><div class="n">${t.n}</div><div class="l">${t.l}</div></div>`).join("")}</div>
-    <div style="font-size:13px;font-weight:700;margin:2px 2px 11px;color:var(--muted)">👥 Client health <span class="info" data-tip="Each client's videos still in production. Red border = something late. Click a client to filter the whole screen to it.">i</span></div>
-    ${clientStrip}
-    <div class="card"><h3><span class="ic"><span class="sq">⏱️</span>Next 48 hours <span class="info" data-tip="Videos due to post within 2 days, plus anything already late — your short-term target.">i</span></span><span class="sub">${soon.length} to ship</span></h3><div class="body">${soonList}</div></div>
+    <div style="font-size:13px;font-weight:700;margin:2px 2px 11px;color:var(--muted)">👥 Client health <span class="info" data-tip="Each client's videos still in production. Red = something late. Click to filter.">i</span></div>${clientStrip}
+    <div class="card"><h3><span class="ic"><span class="sq">⏱️</span>Next 48 hours <span class="info" data-tip="Due to post within 2 days, plus anything already late.">i</span></span><span class="sub">${soon.length} to ship</span></h3><div class="body">${soonList}</div></div>
     <div class="grid2"><div>
-      <div class="card"><h3><span class="ic"><span class="sq">👤</span>Needs assignment <span class="info" data-tip="Unowned videos, most urgent first. Tap the green button to give it to the editor with the most room.">i</span></span><span class="sub">${unassigned.length} items</span></h3><div class="body">${assignList}${unassigned.length?`<p class="colnote" style="padding:9px 8px 0">Tap "→ name" to assign — the board updates instantly (preview; saving to Notion is the backend step).</p>`:""}</div></div>
-      <div class="card"><h3><span class="ic"><span class="sq">📌</span>Chase &amp; unblock <span class="info" data-tip="Videos stuck waiting on someone, oldest first. Nudge the ones at the top.">i</span></span><span class="sub">oldest first · ${chase.length}</span></h3><div class="body">${chaseList}</div></div>
-    </div><div>
-      <div class="card"><h3><span class="ic"><span class="sq">📊</span>Editor capacity <span class="info" data-tip="How full each editor is. Green means room to spare, red means overloaded.">i</span></span><span class="sub">across all clients</span></h3><div class="body">${cap}<p class="colnote" style="padding:9px 8px 2px">⚖️ ${hint}</p></div></div>
-    </div></div>
+      <div class="card"><h3><span class="ic"><span class="sq">👤</span>Needs assignment <span class="info" data-tip="Unowned videos. Tap the green button to give it to the editor with the most room — this saves to Notion.">i</span></span><span class="sub">${unassigned.length}</span></h3><div class="body">${assignList}</div></div>
+      <div class="card"><h3><span class="ic"><span class="sq">📌</span>Chase &amp; unblock <span class="info" data-tip="Stuck waiting on someone, oldest first.">i</span></span><span class="sub">oldest first · ${chase.length}</span></h3><div class="body">${chaseList}</div></div>
+    </div><div><div class="card"><h3><span class="ic"><span class="sq">📊</span>Editor capacity <span class="info" data-tip="How full each editor is. Green = room, red = overloaded.">i</span></span><span class="sub">days of work / ${CAP}</span></h3><div class="body">${cap}<p class="colnote" style="padding:9px 8px 2px">⚖️ ${hint}</p></div></div></div></div>
     ${reviewPanel()}
-    <div style="display:flex;justify-content:space-between;align-items:center;margin:8px 2px 12px">
-      <span style="font-size:13px;font-weight:700;color:var(--muted)">🗂️ Board <span class="info" data-tip="Every video grouped by the stage it's in. Click expand to see the actual cards.">i</span>${flabel}</span>
-      <button class="switch" onclick="toggleBoard()">${OPS_BOARD?"Collapse board":"Expand full board"}</button></div>
-    ${board}
-    ${key}`;
+    <div style="display:flex;justify-content:space-between;align-items:center;margin:8px 2px 12px"><span style="font-size:13px;font-weight:700;color:var(--muted)">🗂️ Board <span class="info" data-tip="Every video grouped by stage. Expand to see cards.">i</span> <span style="color:var(--faint);font-weight:500">· ${FT.length} videos</span></span><button class="switch" onclick="tog()">${OB?"Collapse board":"Expand full board"}</button></div>${board}${key}`;
 }
 function kcol(title,items){
-  const kts=t=>t.post?new Date(t.post+"T00:00:00").getTime():Infinity;
-  const cards=items.length?items.sort((a,b)=>kts(a)-kts(b)).map(t=>{const d=dueInfo(t);
-    return `<div class="kcard ${!t.owner?'unassigned':''}"><div class="kmeta"><span class="eff">${t.eff}</span>
-      <span class="clientchip">${t.client}</span>${fmtBadge(t)}</div><div class="kt">${t.t}</div>
-      <div class="kmeta"><span class="who">${t.owner?mini(t.owner,18)+t.owner:'⚠ unassigned'}</span><span class="who ${d.cls}">${d.label}</span>${t.wait?`<span class="wait">⏳ ${t.wait}</span>`:''}</div>
-      <div style="margin-top:9px;display:flex;gap:6px;align-items:center">${edSelect(t,t.owner?"Move ▾":"Assign ▾")}<button class="del" title="Remove from dashboard — kept in Notion" onclick="delVideo('${t.id}')">📥</button></div></div>`;}).join("")
-    :`<div class="empty" style="padding:16px">—</div>`;
+  const kts=t=>t.postDate?new Date(t.postDate+"T00:00:00").getTime():Infinity;
+  const cards=items.length?items.sort((a,b)=>kts(a)-kts(b)).map(t=>`<div class="kcard ${!t.owner?"unassigned":""}"><div class="kmeta"><span class="eff">${t.effort}</span><span class="clientchip">${t.client}</span>${fmtBadge(t)}</div><div class="kt">${t.title}</div><div class="kmeta"><span class="who">${t.owner?mini(t.owner,18)+prettify(t.owner):"⚠ unassigned"}</span><span class="who ${dueInfo(t).cls}">${dueInfo(t).label}</span>${t.waitingOn&&t.waitingOn!=="Nobody"?`<span class="wait">⏳ ${t.waitingOn}</span>`:""}</div><div style="margin-top:9px;display:flex;gap:6px;align-items:center">${edSelect(t)}<button class="del" title="Remove from dashboard — kept in Notion" onclick="delVideo('${t.id}',this)">📥</button></div></div>`).join(""):`<div class="empty" style="padding:16px">—</div>`;
   return `<div class="col"><h4>${STAGEL[title]||title}<span class="cnt">${items.length}</span></h4><div class="stack">${cards}</div></div>`;
 }
 // ===== SCRIPTWRITER =====
 function scriptView(){
-  const q=TASKS.filter(t=>["Intake","Scripting"].includes(t.stage));
-  const cols=[{k:"To script",f:t=>t.stage==="Scripting",note:"in progress"},{k:"Incoming",f:t=>t.stage==="Intake",note:"needs a brief"},{k:"Waiting approval",f:t=>t.wait==="Client",note:"with creator/brand"}];
-  const tiles=[{n:q.filter(t=>t.stage==="Scripting").length,l:"✍️ Scripting",c:"blue"},{n:q.filter(t=>t.stage==="Intake").length,l:"📥 Incoming",c:"amber"},{n:TASKS.filter(t=>t.type==="Long-form"&&ACTIVE.includes(t.stage)).length,l:"🎬 Long-form",c:""}];
-  document.getElementById("dash").innerHTML=`
-    <h2 class="greet">Good morning 👋</h2><p class="greetsub">Your scripting queue across clients. Done = strong hook, clear structure, claims checked, CTA, references.</p>
-    <div class="tiles" style="grid-template-columns:repeat(3,1fr)">${stag(tiles.map(t=>`<div class="tile ${t.c}"><div class="n">${t.n}</div><div class="l">${t.l}</div></div>`))}</div>
-    <div class="editor-cols" style="grid-template-columns:repeat(3,1fr)">${cols.map(c=>colBox(c.k,TASKS.filter(c.f),c.note)).join("")}</div>
-    <p class="note">Flag a thin brief as <b>Blocked → waiting on Ops</b> rather than guessing.</p>`;
+  const cols=[{k:"To script",f:t=>["Intake","Scripting"].includes(t.stage)},{k:"Being checked",f:t=>["Review"].includes(t.stage)},{k:"Handed off →",f:t=>["Ready to Edit","Editing","Ready to Post"].includes(t.stage)}];
+  document.getElementById("dash").innerHTML=`<h2 class="greet">Good morning 👋</h2><p class="greetsub">Your scripting queue across clients. Done = strong hook, clear structure, claims checked, CTA, references.</p>
+    <div class="editor-cols" style="grid-template-columns:repeat(3,1fr)">${cols.map(c=>colBox(c.k,TASKS.filter(c.f))).join("")}</div>`;
 }
 // ===== EDITOR =====
-function editorView(name){
-  const mine=TASKS.filter(t=>t.owner===name);
+function editorView(){
   // To edit = assigned work from the creator boards. Rest = status from Intake.
-  // Editors triage by when it's due, not an abstract priority (the creator
-  // boards don't carry a Priority field anyway). Soonest post date first.
-  const ts=t=>t.post?new Date(t.post+"T00:00:00").getTime():Infinity;
-  // Actively editable = on their desk now. Upcoming = assigned to them but still
-  // upstream (being filmed or scripted) — prep, don't edit yet.
-  const toEdit=mine.filter(t=>t.stage==="Editing").sort((a,b)=>ts(a)-ts(b));
-  const upcoming=mine.filter(t=>["Ready to Edit","Scripting","Intake"].includes(t.stage)).sort((a,b)=>ts(a)-ts(b));
-  const inrev=mine.filter(t=>t.stage==="Review");
-  const changes=mine.filter(t=>t.stage==="Changes");
-  const topost=mine.filter(t=>t.stage==="Ready to Post");
-  const posted=mine.filter(t=>t.stage==="Published");
+  // Editors triage by due date, not an abstract priority (the creator boards
+  // don't carry a Priority field). Soonest post date first.
+  const ts=t=>t.postDate?new Date(t.postDate+"T00:00:00").getTime():Infinity;
+  const toEdit=TASKS.filter(t=>t.source==="board"&&t.stage==="Editing").sort((a,b)=>ts(a)-ts(b));
+  // Upcoming = assigned to them but still upstream (being filmed or scripted).
+  const upcoming=TASKS.filter(t=>t.source==="board"&&["Ready to Edit","Scripting","Intake"].includes(t.stage)).sort((a,b)=>ts(a)-ts(b));
+  const g=s=>TASKS.filter(t=>t.source==="intake"&&t.stage===s);
+  const changes=g("Changes"),inrev=g("In Review"),topost=g("To Post"),posted=g("Posted");
+  const fmt=d=>{if(!d)return"";const x=new Date(d+"T00:00:00");return MO[x.getMonth()]+" "+x.getDate();};
   const tiles=[
     {n:toEdit.length,l:"🎬 To edit now",c:toEdit.length?"amber":"green"},
     {n:upcoming.length,l:"🗓️ Upcoming",c:""},
     {n:inrev.length,l:"👀 In review",c:"blue"},
     {n:changes.length,l:"⚠️ Needs changes",c:changes.length?"red":"green"},
   ];
-  const editCard=t=>`<div class="kcard"><div class="kmeta"><span class="eff">${t.eff}</span><span class="clientchip">${t.client}</span>${fmtBadge(t)}${fmtBadge(t)}</div><div class="kt" style="display:flex;justify-content:space-between;align-items:center;gap:10px"><span>${t.t}</span><button class="assignbtn" style="flex:0 0 auto" onclick="submitForm('${t.id}')">✍ Submit form</button></div><div class="kmeta"><span class="who ${dueInfo(t).cls}">${dueInfo(t).label}</span>${t.wait&&t.wait!=="Nobody"?`<span class="wait">⏳ ${t.wait}</span>`:""}</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px"><a class="asset" href="#" onclick="return false">🎬 Footage</a><a class="asset" href="#" onclick="return false">📄 Script</a><a class="asset" href="#" onclick="return false">📋 Refs</a></div></div>`;
-  const icard=t=>`<div class="kcard"><div class="kmeta"><span class="clientchip">${t.client||"—"}</span>${t.post?`<span class="who">${dueInfo(t).label}</span>`:""}</div><div class="kt">${t.t}</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"><a class="asset" href="#" onclick="return false">▶ Frame.io</a><a class="asset" href="${threadUrl(t)}" target="_blank" rel="noopener">💬 Open thread</a></div></div>`;
-  const ucard=t=>`<div class="kcard"><div class="kmeta"><span class="clientchip">${t.client||"—"}</span><span class="eff">${t.eff}</span><span class="badge">${STAGEL[t.stage]||t.stage}</span></div><div class="kt">${t.t}</div><div class="kmeta"><span class="who ${dueInfo(t).cls}">${dueInfo(t).label}</span>${t.wait&&t.wait!=="Nobody"?`<span class="wait">⏳ ${t.wait}</span>`:""}</div></div>`;
+  const assetBtns=t=>{const b=[];if(t.footage)b.push(`<a class="asset" href="${t.footage}" target="_blank" rel="noopener">🎬 Footage</a>`);if(t.brief)b.push(`<a class="asset" href="${t.brief}" target="_blank" rel="noopener">📄 Script</a>`);if(t.refs)b.push(`<a class="asset" href="${t.refs}" target="_blank" rel="noopener">📋 Refs</a>`);return b.length?`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px">${b.join("")}</div>`:"";};
+  const editCard=t=>`<div class="kcard"><div class="kmeta"><span class="eff">${t.effort}</span><span class="clientchip">${t.client}</span>${fmtBadge(t)}</div><div class="kt" style="display:flex;justify-content:space-between;align-items:center;gap:10px"><span>${t.title}</span><button class="assignbtn" style="flex:0 0 auto" onclick="submitForm('${t.id}','${t.client}')">✍ Submit form</button></div><div class="kmeta"><span class="who ${dueInfo(t).cls}">${dueInfo(t).label}</span>${t.waitingOn&&t.waitingOn!=="Nobody"?`<span class="wait">⏳ ${t.waitingOn}</span>`:""}</div>${assetBtns(t)}</div>`;
+  const icard=t=>`<div class="kcard"><div class="kmeta"><span class="clientchip">${t.client||"—"}</span>${t.postDate?`<span class="who">${fmt(t.postDate)}</span>`:""}</div><div class="kt">${t.title}</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">${safeUrl(t.frame)?`<a class="asset" href="${safeUrl(t.frame)}" target="_blank" rel="noopener">▶ Frame.io</a>`:""}${threadUrl(t)?`<a class="asset" href="${threadUrl(t)}" target="_blank" rel="noopener">💬 Open thread</a>`:""}</div></div>`;
+  const ucard=t=>`<div class="kcard"><div class="kmeta"><span class="clientchip">${t.client||"—"}</span><span class="eff">${t.effort}</span><span class="badge">${STAGEL[t.stage]||t.stage}</span></div><div class="kt">${t.title}</div><div class="kmeta"><span class="who ${dueInfo(t).cls}">${dueInfo(t).label}</span>${t.waitingOn&&t.waitingOn!=="Nobody"?`<span class="wait">⏳ ${t.waitingOn}</span>`:""}</div>${assetBtns(t)}</div>`;
   const list=(arr,fn,empty)=>arr.length?arr.map(fn).join(""):`<div class="empty" style="padding:16px">${empty}</div>`;
   const col=(title,arr,note,empty)=>`<div class="col"><h4>${title}<span class="cnt">${arr.length}</span></h4><div class="colnote">${note}</div><div class="stack">${list(arr,icard,empty)}</div></div>`;
   document.getElementById("dash").innerHTML=`
@@ -725,14 +591,11 @@ function editorView(name){
     ${changes.length?`<div class="card" style="border-color:rgba(255,88,96,.45)"><h3><span class="ic"><span class="sq">⚠️</span>Needs changes</span><span class="sub">fix in your Discord thread, then reply "done"</span></h3><div class="body"><div class="stack" style="padding:4px">${list(changes,icard,"")}</div></div></div>`:""}
     <div class="card"><h3><span class="ic"><span class="sq">👀</span>In review</span><span class="sub">${inrev.length} submitted, waiting on review</span></h3><div class="body"><div class="stack" style="padding:4px">${list(inrev,icard,"Nothing in review right now.")}</div></div></div>`;
 }
-function colBox(title,items,note){
-  const cards=items.length?items.map(t=>{const d=dueInfo(t);
-    return `<div class="kcard"><div class="kmeta"><span class="pri ${t.pri}">${PRI[t.pri]}</span><span class="eff">${t.eff}</span><span class="clientchip">${t.client}</span>${fmtBadge(t)}${fmtBadge(t)}</div>
-      <div class="kt">${t.t}</div><div class="kmeta"><span class="who ${d.cls}">${d.label}</span>${t.wait?`<span class="wait">⏳ ${t.wait}</span>`:''}</div></div>`;}).join("")
-    :`<div class="empty" style="padding:18px">—</div>`;
-  return `<div class="col"><h4>${title}<span class="cnt">${items.length}</span></h4><div class="colnote">${note}</div><div class="stack">${cards}</div></div>`;
+function colBox(title,items){
+  const cards=items.length?items.map(t=>`<div class="kcard"><div class="kmeta"><span class="pri ${t.priority}">${PRI[t.priority]}</span><span class="eff">${t.effort}</span><span class="clientchip">${t.client}</span>${fmtBadge(t)}</div><div class="kt">${t.title}</div><div class="kmeta"><span class="who ${dueInfo(t).cls}">${dueInfo(t).label}</span>${t.waitingOn&&t.waitingOn!=="Nobody"?`<span class="wait">⏳ ${t.waitingOn}</span>`:""}</div></div>`).join(""):`<div class="empty" style="padding:18px">—</div>`;
+  return `<div class="col"><h4>${title}<span class="cnt">${items.length}</span></h4><div class="stack">${cards}</div></div>`;
 }
-inputs[0].focus();
+boot();
 </script>
 </body>
 </html>

@@ -428,7 +428,15 @@ function cooView(){
     const more=arr.length>8?`<div class="morelink" style="cursor:pointer" onclick="${fn}()">${exp?"▲ Show less":"▾ Show all "+arr.length}</div>`:"";
     const body=shown.length?shown.map(rowOf).join("")+more:'<div class="empty">Nothing here 🎉</div>';
     return `<div class="card"><h3><span class="ic"><span class="sq">${icon}</span>${title}</span><span class="sub">worst first · ${arr.length}</span></h3><div class="body">${body}</div></div>`;};
-  const filterChip=COO_FILTER!=="all"?`<div style="margin:2px 2px 12px;font-size:12.5px;color:var(--muted)">Filtered to <b style="color:var(--txt)">${(tiles.find(x=>x.f===COO_FILTER)||{}).l||STAGEL[COO_FILTER]||COO_FILTER}</b> · ${rowsArr.length} <button class="switch" style="padding:3px 9px;margin-left:6px" onclick="setCooFilter('all')">clear ✕</button></div>`:"";
+  // Review/Checking filter shows ONLY the "In review & changes" panel — the
+  // short/long do-now queues are hidden, and the chip counts the review items.
+  const isReviewFilter = COO_FILTER==="Review";
+  const filterCount = isReviewFilter ? INTAKEX.length : rowsArr.length;
+  const filterChip=COO_FILTER!=="all"?`<div style="margin:2px 2px 12px;font-size:12.5px;color:var(--muted)">Filtered to <b style="color:var(--txt)">${(tiles.find(x=>x.f===COO_FILTER)||{}).l||STAGEL[COO_FILTER]||COO_FILTER}</b> · ${filterCount} <button class="switch" style="padding:3px 9px;margin-left:6px" onclick="setCooFilter('all')">clear ✕</button></div>`:"";
+  const queuesBlock = isReviewFilter ? "" : `<div class="grid2" style="grid-template-columns:1fr 1fr">
+      <div>${queueCard(shorts,COO_EXP_S,"cooMoreS","Short-form · do now","🎬")}</div>
+      <div>${queueCard(longs,COO_EXP_L,"cooMoreL","Long-form · do now","🎞️")}</div>
+    </div>`;
   const edsSorted=[...EDITORS].sort((a,b)=>loadFor(b)-loadFor(a));
   const bnEd=edsSorted[0], bnOver=loadFor(bnEd)>CAP;
   const scSub=bnOver?`⛔ Bottleneck · ${prettify(bnEd)}`:"load · output · quality";
@@ -455,10 +463,7 @@ function cooView(){
     ${funnel}
     <div class="tiles">${tilesHtml}</div>
     ${filterChip}
-    <div class="grid2" style="grid-template-columns:1fr 1fr">
-      <div>${queueCard(shorts,COO_EXP_S,"cooMoreS","Short-form · do now","🎬")}</div>
-      <div>${queueCard(longs,COO_EXP_L,"cooMoreL","Long-form · do now","🎞️")}</div>
-    </div>
+    ${queuesBlock}
     ${reviewPanel()}
     <div class="grid2">
       <div><div class="card"><h3><span class="ic"><span class="sq">📊</span>Editor scorecard <span class="info" data-tip="Load vs capacity, plus each editor's shipped count, average turnaround, and revision rate. Sorted heaviest-load first, so your bottleneck editor is on top. More than 2 revisions usually means a briefing problem, not editing.">i</span></span><span class="sub">${scSub}</span></h3><div class="body">${scorecard}</div></div></div>

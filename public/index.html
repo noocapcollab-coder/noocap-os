@@ -127,6 +127,9 @@
   .act.go{border-color:rgba(90,220,150,.5);color:#8fe9bd}.act.go:hover{background:rgba(70,220,150,.14)}
   .del{font-size:12px;padding:4px 8px;border-radius:8px;background:transparent;border:1px solid var(--line2);color:var(--faint);cursor:pointer;font-family:inherit;flex:0 0 auto;transition:.13s}
   .del:hover{color:#ff9297;border-color:rgba(255,88,96,.5);background:rgba(255,88,96,.1)}
+  .fmt{font-size:10px;font-weight:800;padding:2px 8px;border-radius:6px;letter-spacing:.3px;flex:0 0 auto}
+  .fmt.lf{background:rgba(139,92,255,.16);color:#c7b3ff;border:1px solid rgba(139,92,255,.35)}
+  .fmt.sf{background:rgba(56,200,214,.14);color:#8fe0ea;border:1px solid rgba(56,200,214,.32)}
   .sparkbars{display:inline-flex;align-items:flex-end;gap:2px;height:18px;margin-left:9px;vertical-align:-4px}
   .sparkbars i{width:4px;min-height:3px;background:rgba(46,195,139,.7);border-radius:1px}
   .up{color:var(--ok);font-weight:800}.down{color:var(--bad);font-weight:800}.flat{color:var(--faint);font-weight:800}
@@ -351,7 +354,7 @@ const DISCORD_SERVER_ID="1406306400006705162";
 const threadUrl=t=>`https://discord.com/channels/${DISCORD_SERVER_ID}`;
 function reviewPanel(){
   const items=TASKS.filter(t=>t.stage==="Review"||t.stage==="Changes");
-  const irow=t=>`<div class="row"><span class="clientchip">${t.client||"—"}</span><span class="title">${t.t}</span>${t.stage==="Changes"?`<span class="badge red">changes</span>`:`<span class="badge">in review</span>`}<a class="asset" href="#" onclick="return false">▶ Frame.io</a><a class="asset" href="${threadUrl(t)}" target="_blank" rel="noopener">💬 Thread</a>${t.stage!=="Changes"?`<button class="act warn" onclick="intakeStatus('${t.id}','Changes')">↩ Send to Changes</button>`:""}<button class="act go" onclick="intakeStatus('${t.id}','To Post')">✓ Approve → To Post</button><button class="del" title="Delete — moves to Notion trash" onclick="delVideo('${t.id}')">🗑</button></div>`;
+  const irow=t=>`<div class="row"><span class="clientchip">${t.client||"—"}</span><span class="title">${t.t}</span>${t.stage==="Changes"?`<span class="badge red">changes</span>`:`<span class="badge">in review</span>`}<a class="asset" href="#" onclick="return false">▶ Frame.io</a><a class="asset" href="${threadUrl(t)}" target="_blank" rel="noopener">💬 Thread</a>${t.stage!=="Changes"?`<button class="act warn" onclick="intakeStatus('${t.id}','Changes')">↩ Send to Changes</button>`:""}<button class="act go" onclick="intakeStatus('${t.id}','To Post')">✓ Approve → To Post</button><button class="del" title="Remove from dashboard — kept in Notion" onclick="delVideo('${t.id}')">📥</button></div>`;
   return `<div class="card"><h3><span class="ic"><span class="sq">💬</span>In review &amp; changes <span class="info" data-tip="Submitted videos awaiting review, or sent back for changes. Jump into the Discord thread or open Frame.io.">i</span></span><span class="sub">${items.length}</span></h3><div class="body">${items.length?items.map(irow).join(""):'<div class="empty">Nothing in review right now.</div>'}</div></div>`;
 }
 const STAGEL={"Intake":"New idea","Scripting":"Writing script","Ready to Edit":"Ready to edit","Editing":"Editing","Review":"Checking","Ready to Post":"Ready to post"};
@@ -389,7 +392,8 @@ function edSelect(t,label){return `<select class="esel" onchange="if(this.value)
 function flagBlocked(id){const t=TASKS.find(x=>String(x.id)===String(id));if(t){t.wait="Ops";toast("⚑ Flagged blocked — Ops notified");}renderDash();}
 function submitForm(id){window.open(FORM_URL,"_blank");const t=TASKS.find(x=>String(x.id)===String(id));if(t){t.stage="Review";t.wait="Client";toast('✓ "'+t.t+'" submitted — moved to In review');}renderDash();}
 function intakeStatus(id,status){const t=TASKS.find(x=>String(x.id)===String(id));if(!t)return;if(status==="Changes"){t.stage="Changes";t.wait="Editor";toast('↩ "'+t.t+'" sent back for changes — Discord ping fired');}else{t.stage="Ready to Post";t.wait=null;toast('✓ "'+t.t+'" approved → To Post — team notified');}renderDash();}
-function delVideo(id){const i=TASKS.findIndex(x=>String(x.id)===String(id));if(i<0)return;const nm=TASKS[i].t;if(!confirm('Delete "'+nm+'"?\n\nThis moves it to Notion trash (recoverable for 30 days) and removes it from every board. It does not permanently erase it.'))return;TASKS.splice(i,1);toast('🗑 "'+nm+'" deleted — moved to Notion trash');renderDash();}
+function delVideo(id){const i=TASKS.findIndex(x=>String(x.id)===String(id));if(i<0)return;const nm=TASKS[i].t;if(!confirm('Remove "'+nm+'" from the dashboard?\n\nIt stays in Notion (set to Archive) and just leaves every board here — reversible anytime.'))return;TASKS.splice(i,1);toast('📥 "'+nm+'" removed from dashboard — kept in Notion');renderDash();}
+const fmtBadge=t=>(t.type==="Long-form"||t.eff==="L")?'<span class="fmt lf">▬ Long</span>':'<span class="fmt sf">▪ Short</span>';
 function tryCode(){const c=inputs.map(x=>x.value).join(""),u=USERS.find(x=>x.code===c);
   if(u)login(u);else{const e=document.getElementById("err"),k=document.getElementById("logincard");e.classList.add("show");k.classList.add("shake");
   setTimeout(()=>k.classList.remove("shake"),400);setTimeout(()=>{inputs.forEach(x=>x.value="");inputs[0].focus();},450);}}
@@ -533,8 +537,8 @@ function cooView(){
   const LIM=COO_EXPAND?list.length:10, shown=list.slice(0,LIM);
   const doRow=t=>{const badge=badgeOf(t);
     if(t.stage==="Review"||t.stage==="Changes"){
-      return `<div class="row"><span class="clientchip">${t.client||"—"}</span><span class="title">${t.t}</span>${badge}<a class="asset" href="#" onclick="return false">▶ Frame.io</a>${t.stage!=="Changes"?`<button class="act warn" onclick="intakeStatus('${t.id}','Changes')">↩ Changes</button>`:""}<button class="act go" onclick="intakeStatus('${t.id}','To Post')">✓ Approve</button><button class="del" title="Delete — moves to Notion trash" onclick="delVideo('${t.id}')">🗑</button></div>`;}
-    return `<div class="row"><span class="title">${t.t}</span><span class="clientchip">${t.client}</span>${badge}${edSelect(t,t.owner?"Move ▾":"Assign ▾")}<button class="del" title="Delete — moves to Notion trash" onclick="delVideo('${t.id}')">🗑</button></div>`;};
+      return `<div class="row"><span class="clientchip">${t.client||"—"}</span><span class="title">${t.t}</span>${badge}<a class="asset" href="#" onclick="return false">▶ Frame.io</a>${t.stage!=="Changes"?`<button class="act warn" onclick="intakeStatus('${t.id}','Changes')">↩ Changes</button>`:""}<button class="act go" onclick="intakeStatus('${t.id}','To Post')">✓ Approve</button><button class="del" title="Remove from dashboard — kept in Notion" onclick="delVideo('${t.id}')">📥</button></div>`;}
+    return `<div class="row"><span class="title">${t.t}</span><span class="clientchip">${t.client}</span>${fmtBadge(t)}${badge}${edSelect(t,t.owner?"Move ▾":"Assign ▾")}<button class="del" title="Remove from dashboard — kept in Notion" onclick="delVideo('${t.id}')">📥</button></div>`;};
   const moreBtn=list.length>10?`<div class="morelink" style="cursor:pointer" onclick="cooMore()">${COO_EXPAND?"▲ Show less":"▾ Show all "+list.length}</div>`:"";
   const rows=shown.length?shown.map(doRow).join("")+moreBtn:'<div class="empty">Nothing here right now 🎉</div>';
   const flabel=COO_FILTER==="all"?`worst first · ${list.length}`:`${(tiles.find(x=>x.f===COO_FILTER)||{}).l||COO_FILTER} · ${list.length} <button class="switch" style="padding:3px 9px;margin-left:6px" onclick="setCooFilter('all')">clear ✕</button>`;
@@ -543,7 +547,7 @@ function cooView(){
     return `<div class="sc"><div class="sc-top"><span class="name">${mini(n)}${n}</span><span class="sc-load ${load>CAP?'od':''}">${load}/${CAP}d${load>CAP?' ⚠':''}</span></div><div class="track"><div class="fill" style="width:${pct}%;background:${col}"></div></div><div class="sc-meta"><span>📦 ${sh} shipped</span><span>⚡ ${tt}h avg</span><span class="${rv>2?'bad':''}">🔁 ${rv.toFixed(1)} rev${rv>2?' ⚠':''}</span></div></div>`;};
   const scorecard=EDITORS.map(scRow).join("");
   const clients=[...new Set(TASKS.map(t=>t.client))].map(c=>{const act=TASKS.filter(t=>t.client===c&&t.stage!=="Published").length,pb=TASKS.filter(t=>t.client===c&&t.stage==="Published").length;return `<div class="row"><span class="clientchip">${c}</span><span class="title" style="color:var(--muted);font-weight:500">${act} in production · ${pb} shipped</span></div>`;}).join("");
-  const staleRows=stale.length?stale.slice(0,8).map(t=>`<div class="row"><span class="title">${t.t}</span><span class="clientchip">${t.client}</span><span class="badge amber">${daysInStage(t)}d in ${STAGEL[t.stage]||t.stage}</span>${edSelect(t,t.owner?"Move ▾":"Assign ▾")}<button class="del" title="Delete — moves to Notion trash" onclick="delVideo('${t.id}')">🗑</button></div>`).join(""):'<div class="empty">Nothing stalling 🎉</div>';
+  const staleRows=stale.length?stale.slice(0,8).map(t=>`<div class="row"><span class="title">${t.t}</span><span class="clientchip">${t.client}</span><span class="badge amber">${daysInStage(t)}d in ${STAGEL[t.stage]||t.stage}</span>${edSelect(t,t.owner?"Move ▾":"Assign ▾")}<button class="del" title="Remove from dashboard — kept in Notion" onclick="delVideo('${t.id}')">📥</button></div>`).join(""):'<div class="empty">Nothing stalling 🎉</div>';
   document.getElementById("dash").innerHTML=`
     ${greet("One prioritized queue — the worst thing first. Tap any number to filter, and act right from the row.")}
     ${pulse}
@@ -590,7 +594,7 @@ function opsView(){
   ];
   const CAPN=8;
   const opsRow=(t,badge)=>{const dl=daysLate(t);
-    return `<div class="row"><span class="eff">${t.eff}</span><span class="title">${t.t}</span><span class="clientchip">${t.client}</span>${dl?`<span class="agebadge">${dl}d late</span>`:""}${badge}<button class="del" title="Delete — moves to Notion trash" onclick="delVideo('${t.id}')">🗑</button></div>`;};
+    return `<div class="row"><span class="eff">${t.eff}</span><span class="title">${t.t}</span><span class="clientchip">${t.client}</span>${dl?`<span class="agebadge">${dl}d late</span>`:""}${badge}<button class="del" title="Remove from dashboard — kept in Notion" onclick="delVideo('${t.id}')">📥</button></div>`;};
   const listBox=(arr,rowFn,empty)=>arr.length?arr.slice(0,CAPN).map(rowFn).join("")+(arr.length>CAPN?`<div class="morelink">+ ${arr.length-CAPN} more — filter or search to narrow</div>`:""):`<div class="empty">${empty}</div>`;
   const assignList=listBox(unassigned,t=>opsRow(t,edSelect(t,"Assign ▾")),"Nothing waiting for an owner 🎉");
   const chase=[...stuck,...waitClient,...blockedOther].filter((v,i,a)=>a.indexOf(v)===i).sort((a,b)=>daysLate(b)-daysLate(a));
@@ -632,9 +636,9 @@ function kcol(title,items){
   const kts=t=>t.post?new Date(t.post+"T00:00:00").getTime():Infinity;
   const cards=items.length?items.sort((a,b)=>kts(a)-kts(b)).map(t=>{const d=dueInfo(t);
     return `<div class="kcard ${!t.owner?'unassigned':''}"><div class="kmeta"><span class="eff">${t.eff}</span>
-      <span class="clientchip">${t.client}</span></div><div class="kt">${t.t}</div>
+      <span class="clientchip">${t.client}</span>${fmtBadge(t)}</div><div class="kt">${t.t}</div>
       <div class="kmeta"><span class="who">${t.owner?mini(t.owner,18)+t.owner:'⚠ unassigned'}</span><span class="who ${d.cls}">${d.label}</span>${t.wait?`<span class="wait">⏳ ${t.wait}</span>`:''}</div>
-      <div style="margin-top:9px;display:flex;gap:6px;align-items:center">${edSelect(t,t.owner?"Move ▾":"Assign ▾")}<button class="del" title="Delete — moves to Notion trash" onclick="delVideo('${t.id}')">🗑</button></div></div>`;}).join("")
+      <div style="margin-top:9px;display:flex;gap:6px;align-items:center">${edSelect(t,t.owner?"Move ▾":"Assign ▾")}<button class="del" title="Remove from dashboard — kept in Notion" onclick="delVideo('${t.id}')">📥</button></div></div>`;}).join("")
     :`<div class="empty" style="padding:16px">—</div>`;
   return `<div class="col"><h4>${STAGEL[title]||title}<span class="cnt">${items.length}</span></h4><div class="stack">${cards}</div></div>`;
 }
@@ -670,7 +674,7 @@ function editorView(name){
     {n:inrev.length,l:"👀 In review",c:"blue"},
     {n:changes.length,l:"⚠️ Needs changes",c:changes.length?"red":"green"},
   ];
-  const editCard=t=>`<div class="kcard"><div class="kmeta"><span class="eff">${t.eff}</span><span class="clientchip">${t.client}</span></div><div class="kt" style="display:flex;justify-content:space-between;align-items:center;gap:10px"><span>${t.t}</span><button class="assignbtn" style="flex:0 0 auto" onclick="submitForm('${t.id}')">✍ Submit form</button></div><div class="kmeta"><span class="who ${dueInfo(t).cls}">${dueInfo(t).label}</span>${t.wait&&t.wait!=="Nobody"?`<span class="wait">⏳ ${t.wait}</span>`:""}</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px"><a class="asset" href="#" onclick="return false">🎬 Footage</a><a class="asset" href="#" onclick="return false">📄 Script</a><a class="asset" href="#" onclick="return false">📋 Refs</a></div></div>`;
+  const editCard=t=>`<div class="kcard"><div class="kmeta"><span class="eff">${t.eff}</span><span class="clientchip">${t.client}</span>${fmtBadge(t)}${fmtBadge(t)}</div><div class="kt" style="display:flex;justify-content:space-between;align-items:center;gap:10px"><span>${t.t}</span><button class="assignbtn" style="flex:0 0 auto" onclick="submitForm('${t.id}')">✍ Submit form</button></div><div class="kmeta"><span class="who ${dueInfo(t).cls}">${dueInfo(t).label}</span>${t.wait&&t.wait!=="Nobody"?`<span class="wait">⏳ ${t.wait}</span>`:""}</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px"><a class="asset" href="#" onclick="return false">🎬 Footage</a><a class="asset" href="#" onclick="return false">📄 Script</a><a class="asset" href="#" onclick="return false">📋 Refs</a></div></div>`;
   const icard=t=>`<div class="kcard"><div class="kmeta"><span class="clientchip">${t.client||"—"}</span>${t.post?`<span class="who">${dueInfo(t).label}</span>`:""}</div><div class="kt">${t.t}</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"><a class="asset" href="#" onclick="return false">▶ Frame.io</a><a class="asset" href="${threadUrl(t)}" target="_blank" rel="noopener">💬 Open thread</a></div></div>`;
   const ucard=t=>`<div class="kcard"><div class="kmeta"><span class="clientchip">${t.client||"—"}</span><span class="eff">${t.eff}</span><span class="badge">${STAGEL[t.stage]||t.stage}</span></div><div class="kt">${t.t}</div><div class="kmeta"><span class="who ${dueInfo(t).cls}">${dueInfo(t).label}</span>${t.wait&&t.wait!=="Nobody"?`<span class="wait">⏳ ${t.wait}</span>`:""}</div></div>`;
   const list=(arr,fn,empty)=>arr.length?arr.map(fn).join(""):`<div class="empty" style="padding:16px">${empty}</div>`;
@@ -685,7 +689,7 @@ function editorView(name){
 }
 function colBox(title,items,note){
   const cards=items.length?items.map(t=>{const d=dueInfo(t);
-    return `<div class="kcard"><div class="kmeta"><span class="pri ${t.pri}">${PRI[t.pri]}</span><span class="eff">${t.eff}</span><span class="clientchip">${t.client}</span></div>
+    return `<div class="kcard"><div class="kmeta"><span class="pri ${t.pri}">${PRI[t.pri]}</span><span class="eff">${t.eff}</span><span class="clientchip">${t.client}</span>${fmtBadge(t)}${fmtBadge(t)}</div>
       <div class="kt">${t.t}</div><div class="kmeta"><span class="who ${d.cls}">${d.label}</span>${t.wait?`<span class="wait">⏳ ${t.wait}</span>`:''}</div></div>`;}).join("")
     :`<div class="empty" style="padding:18px">—</div>`;
   return `<div class="col"><h4>${title}<span class="cnt">${items.length}</span></h4><div class="colnote">${note}</div><div class="stack">${cards}</div></div>`;

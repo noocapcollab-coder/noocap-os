@@ -390,12 +390,13 @@ function cooView(){
   // --- pipeline funnel: count per stage, bottleneck flagged, click to drill in ---
   const funStages=[["Intake","🌱 New idea"],["Scripting","✍️ Scripting"],["Ready to Edit","🎬 Ready to edit"],["Editing","✂️ Editing"],["Review","👀 Review"],["Ready to Post","✅ Ready to post"]];
   const funnel=`<div class="funnel">${funStages.map(([s,l],i)=>{const n=TASKS.filter(t=>t.stage===s).length,isB=(s===bn.s&&bn.n>0);return `<div class="fstep ${COO_FILTER===s?'active':''} ${isB?'bn':''}" onclick="setCooFilter('${s}')" title="Click to see these videos below"><div class="fn">${n}</div><div class="fl">${l}${isB?' ⛔':''}</div></div>${i<funStages.length-1?'<span class="farr">›</span>':''}`;}).join("")}</div>`;
+  // Tiles = problems only. Stage filtering (editing / scripting / etc.) lives in
+  // the pipeline funnel above, so those stage tiles were removed to avoid the
+  // "clicking two different things does the same thing" overlap.
   const tiles=[
     {n:stuck.length,l:"📅 Late — not posted",c:stuck.length?"red":"green",f:"late"},
     {n:today.length,l:"🟠 Posting today",c:today.length?"amber":"green",f:"today"},
     {n:waitClient.length,l:"💬 Waiting on client",c:"blue",f:"client"},
-    {n:editing.length,l:"✂️ Being edited",c:"",f:"editing"},
-    {n:scripting.length,l:"✍️ Being scripted",c:"",f:"scripting"},
     {n:over.length,l:"⚠️ Too much work",c:over.length?"red":"green",f:"over"},
   ];
   const tilesHtml=tiles.map(t=>`<div class="tile ${t.c} ${COO_FILTER===t.f?'active':''}" onclick="setCooFilter('${t.f}')"><div class="n">${t.n}</div><div class="l">${t.l}</div></div>`).join("");

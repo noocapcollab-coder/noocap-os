@@ -476,9 +476,10 @@ function countUpAll(){
 const greet=(s)=>`<h2 class="greet">Good morning, ${CURRENT.name} 👋</h2><p class="greetsub">${s}</p>`;
 const stag=(a)=>a.map((h,i)=>h.replace('animation:rise .5s both','animation:rise .5s both;animation-delay:'+(i*40)+'ms')).join("");
 // ===== COO =====
-let COO_FILTER="all", COO_EXPAND=false;
-function setCooFilter(k){COO_FILTER=(COO_FILTER===k?"all":k);COO_EXPAND=false;cooView();}
-function cooMore(){COO_EXPAND=!COO_EXPAND;cooView();}
+let COO_FILTER="all", COO_EXP_S=false, COO_EXP_L=false;
+function setCooFilter(k){COO_FILTER=(COO_FILTER===k?"all":k);COO_EXP_S=false;COO_EXP_L=false;cooView();}
+function cooMoreS(){COO_EXP_S=!COO_EXP_S;cooView();}
+function cooMoreL(){COO_EXP_L=!COO_EXP_L;cooView();}
 function cooView(){
   const dl=t=>{if(!t.post)return 0;const x=Math.round((TODAY-new Date(t.post+"T00:00:00"))/864e5);return x>0?x:0;};
   const isBlockedUs=t=>t.wait&&!["Client","Nobody"].includes(t.wait);
@@ -534,14 +535,17 @@ function cooView(){
   const preds={late:t=>dueInfo(t).stuck,today:t=>dueInfo(t).today,client:t=>t.wait==="Client",editing:t=>t.stage==="Editing",scripting:t=>t.stage==="Scripting",over:t=>overSet.has(t.owner)&&ACTIVE.includes(t.stage)};
   let list=COO_FILTER==="all"?TASKS.filter(t=>rankOf(t)<99):TASKS.filter(preds[COO_FILTER]||(()=>false));
   list=list.slice().sort((a,b)=>rankOf(a)-rankOf(b)||dl(b)-dl(a));
-  const LIM=COO_EXPAND?list.length:10, shown=list.slice(0,LIM);
   const doRow=t=>{const badge=badgeOf(t);
     if(t.stage==="Review"||t.stage==="Changes"){
       return `<div class="row"><span class="clientchip">${t.client||"—"}</span><span class="title">${t.t}</span>${badge}<a class="asset" href="#" onclick="return false">▶ Frame.io</a>${t.stage!=="Changes"?`<button class="act warn" onclick="intakeStatus('${t.id}','Changes')">↩ Changes</button>`:""}<button class="act go" onclick="intakeStatus('${t.id}','To Post')">✓ Approve</button><button class="del" title="Remove from dashboard — kept in Notion" onclick="delVideo('${t.id}')">📥</button></div>`;}
-    return `<div class="row"><span class="title">${t.t}</span><span class="clientchip">${t.client}</span>${fmtBadge(t)}${badge}${edSelect(t,t.owner?"Move ▾":"Assign ▾")}<button class="del" title="Remove from dashboard — kept in Notion" onclick="delVideo('${t.id}')">📥</button></div>`;};
-  const moreBtn=list.length>10?`<div class="morelink" style="cursor:pointer" onclick="cooMore()">${COO_EXPAND?"▲ Show less":"▾ Show all "+list.length}</div>`:"";
-  const rows=shown.length?shown.map(doRow).join("")+moreBtn:'<div class="empty">Nothing here right now 🎉</div>';
-  const flabel=COO_FILTER==="all"?`worst first · ${list.length}`:`${(tiles.find(x=>x.f===COO_FILTER)||{}).l||COO_FILTER} · ${list.length} <button class="switch" style="padding:3px 9px;margin-left:6px" onclick="setCooFilter('all')">clear ✕</button>`;
+    return `<div class="row"><span class="title">${t.t}</span><span class="clientchip">${t.client}</span>${badge}${edSelect(t,t.owner?"Move ▾":"Assign ▾")}<button class="del" title="Remove from dashboard — kept in Notion" onclick="delVideo('${t.id}')">📥</button></div>`;};
+  const isLong=t=>(t.type==="Long-form"||t.eff==="L");
+  const shorts=list.filter(t=>!isLong(t)), longs=list.filter(isLong);
+  const queueCard=(arr,exp,fn,title,icon)=>{const LIM=exp?arr.length:8,shown=arr.slice(0,LIM);
+    const more=arr.length>8?`<div class="morelink" style="cursor:pointer" onclick="${fn}()">${exp?"▲ Show less":"▾ Show all "+arr.length}</div>`:"";
+    const body=shown.length?shown.map(doRow).join("")+more:'<div class="empty">Nothing here 🎉</div>';
+    return `<div class="card"><h3><span class="ic"><span class="sq">${icon}</span>${title}</span><span class="sub">worst first · ${arr.length}</span></h3><div class="body">${body}</div></div>`;};
+  const filterChip=COO_FILTER!=="all"?`<div style="margin:2px 2px 12px;font-size:12.5px;color:var(--muted)">Filtered to <b style="color:var(--txt)">${(tiles.find(x=>x.f===COO_FILTER)||{}).l||COO_FILTER}</b> · ${list.length} <button class="switch" style="padding:3px 9px;margin-left:6px" onclick="setCooFilter('all')">clear ✕</button></div>`:"";
   const scRow=n=>{const load=loadFor(n),mine=pub.filter(t=>t.owner===n),sh=mine.length,tt=mine.length?Math.round(mine.map(cycleHrs).reduce((a,b)=>a+b,0)/mine.length):0,rv=mine.length?mine.map(revs).reduce((a,b)=>a+b,0)/mine.length:0;
     const pct=Math.min(load/CAP,1)*100,col=load>CAP?"var(--bad)":load>=CAP?"var(--warn)":"var(--ok)";
     return `<div class="sc"><div class="sc-top"><span class="name">${mini(n)}${n}</span><span class="sc-load ${load>CAP?'od':''}">${load}/${CAP}d${load>CAP?' ⚠':''}</span></div><div class="track"><div class="fill" style="width:${pct}%;background:${col}"></div></div><div class="sc-meta"><span>📦 ${sh} shipped</span><span>⚡ ${tt}h avg</span><span class="${rv>2?'bad':''}">🔁 ${rv.toFixed(1)} rev${rv>2?' ⚠':''}</span></div></div>`;};
@@ -549,15 +553,18 @@ function cooView(){
   const clients=[...new Set(TASKS.map(t=>t.client))].map(c=>{const act=TASKS.filter(t=>t.client===c&&t.stage!=="Published").length,pb=TASKS.filter(t=>t.client===c&&t.stage==="Published").length;return `<div class="row"><span class="clientchip">${c}</span><span class="title" style="color:var(--muted);font-weight:500">${act} in production · ${pb} shipped</span></div>`;}).join("");
   const staleRows=stale.length?stale.slice(0,8).map(t=>`<div class="row"><span class="title">${t.t}</span><span class="clientchip">${t.client}</span><span class="badge amber">${daysInStage(t)}d in ${STAGEL[t.stage]||t.stage}</span>${edSelect(t,t.owner?"Move ▾":"Assign ▾")}<button class="del" title="Remove from dashboard — kept in Notion" onclick="delVideo('${t.id}')">📥</button></div>`).join(""):'<div class="empty">Nothing stalling 🎉</div>';
   document.getElementById("dash").innerHTML=`
-    ${greet("One prioritized queue — the worst thing first. Tap any number to filter, and act right from the row.")}
+    ${greet("Two queues — short-form and long-form, worst thing first. Tap any number to filter, and act right from the row.")}
     ${pulse}
     <div class="tiles">${tilesHtml}</div>
-    <div class="grid2"><div>
-      <div class="card"><h3><span class="ic"><span class="sq">🎯</span>Do now <span class="info" data-tip="Your single ranked queue: late-to-post first, then changes and today, then blocked, then on-client. Reassign, approve, or delete right here.">i</span></span><span class="sub">${flabel}</span></h3><div class="body">${rows}</div></div>
-    </div><div>
-      <div class="card"><h3><span class="ic"><span class="sq">📊</span>Editor scorecard <span class="info" data-tip="Load vs capacity, plus each editor's shipped count, average turnaround, and revision rate. More than 2 revisions usually means a briefing problem, not editing.">i</span></span><span class="sub">load · output · quality</span></h3><div class="body">${scorecard}</div></div>
-      <div class="card"><h3><span class="ic"><span class="sq">👥</span>Clients</span><span class="sub">active</span></h3><div class="body">${clients}</div></div>
-    </div></div>
+    ${filterChip}
+    <div class="grid2" style="grid-template-columns:1fr 1fr">
+      <div>${queueCard(shorts,COO_EXP_S,"cooMoreS","Short-form · do now","🎬")}</div>
+      <div>${queueCard(longs,COO_EXP_L,"cooMoreL","Long-form · do now","🎞️")}</div>
+    </div>
+    <div class="grid2">
+      <div><div class="card"><h3><span class="ic"><span class="sq">📊</span>Editor scorecard <span class="info" data-tip="Load vs capacity, plus each editor's shipped count, average turnaround, and revision rate. More than 2 revisions usually means a briefing problem, not editing.">i</span></span><span class="sub">load · output · quality</span></h3><div class="body">${scorecard}</div></div></div>
+      <div><div class="card"><h3><span class="ic"><span class="sq">👥</span>Clients</span><span class="sub">active</span></h3><div class="body">${clients}</div></div></div>
+    </div>
     <div class="card"><h3><span class="ic"><span class="sq">⏳</span>Going stale <span class="info" data-tip="Videos sitting too long in one stage — even if not past a post date yet. Catch silent stalls before they become fires. Reassign or delete from any row.">i</span></span><span class="sub">${stale.length} stalling</span></h3><div class="body">${staleRows}</div></div>
     <p class="note">⚡ Every row is actionable — reassign, approve, or delete without leaving this screen. <b>${thisW}</b> shipped this week (${dW>=0?'+':''}${dW} vs last) · avg cycle <b>${avgCyc}h</b> · <b>${stale.length}</b> going stale.</p>`;
 }

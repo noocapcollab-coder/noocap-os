@@ -141,6 +141,15 @@
   .sc .fill{height:100%;border-radius:6px}
   .sc-meta{font-size:11px;color:var(--muted);margin-top:7px;display:flex;gap:12px;flex-wrap:wrap}
   .sc-meta .bad{color:#ff9297;font-weight:700}
+  .bnchip{font-size:9px;font-weight:800;padding:2px 7px;border-radius:20px;background:rgba(255,88,96,.16);color:#ff9297;border:1px solid rgba(255,88,96,.4);letter-spacing:.3px;vertical-align:1px}
+  .funnel{display:flex;align-items:stretch;gap:6px;margin-bottom:18px;overflow-x:auto}
+  .fstep{flex:1;min-width:92px;background:var(--glass);border:1px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer;transition:.13s}
+  .fstep:hover{border-color:var(--line2);transform:translateY(-2px)}
+  .fstep.active{border-color:rgba(91,140,255,.75);box-shadow:0 0 0 2px rgba(91,140,255,.28)}
+  .fstep.bn{border-color:rgba(255,152,56,.6)}
+  .fstep .fn{font-size:22px;font-weight:800;letter-spacing:-.5px;line-height:1}
+  .fstep .fl{font-size:10.5px;color:var(--muted);margin-top:4px}
+  .farr{align-self:center;color:var(--faint);font-size:15px;flex:0 0 auto}
   #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(18px);background:#11141b;border:1px solid var(--line2);color:var(--txt);padding:12px 18px;border-radius:12px;box-shadow:var(--shadow);font-size:13px;font-weight:600;opacity:0;transition:.25s;z-index:200;pointer-events:none;max-width:90vw}
   #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   .chealth{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:11px;margin-bottom:18px}
@@ -476,10 +485,11 @@ function countUpAll(){
 const greet=(s)=>`<h2 class="greet">Good morning, ${CURRENT.name} 👋</h2><p class="greetsub">${s}</p>`;
 const stag=(a)=>a.map((h,i)=>h.replace('animation:rise .5s both','animation:rise .5s both;animation-delay:'+(i*40)+'ms')).join("");
 // ===== COO =====
-let COO_FILTER="all", COO_EXP_S=false, COO_EXP_L=false;
+let COO_FILTER="all", COO_EXP_S=false, COO_EXP_L=false, COO_BOARD=false;
 function setCooFilter(k){COO_FILTER=(COO_FILTER===k?"all":k);COO_EXP_S=false;COO_EXP_L=false;cooView();}
 function cooMoreS(){COO_EXP_S=!COO_EXP_S;cooView();}
 function cooMoreL(){COO_EXP_L=!COO_EXP_L;cooView();}
+function cooBoardT(){COO_BOARD=!COO_BOARD;cooView();}
 function cooView(){
   const dl=t=>{if(!t.post)return 0;const x=Math.round((TODAY-new Date(t.post+"T00:00:00"))/864e5);return x>0?x:0;};
   const isBlockedUs=t=>t.wait&&!["Client","Nobody"].includes(t.wait);
@@ -511,6 +521,9 @@ function cooView(){
     <div class="stagepill" style="border-color:rgba(91,140,255,.4)"><b>${avgCyc}h</b><span>⚡ Avg cycle${slow?` · ${slow} slow`:''}</span></div>
     <div class="stagepill" style="border-color:rgba(255,152,56,.45)"><b>${bn.n}</b><span>⛔ Bottleneck · ${STAGEL[bn.s]||bn.s}</span></div>
     <div class="stagepill"><b>${wip}</b><span>🎬 In production</span></div></div>`;
+  // --- pipeline funnel: how many sit in each stage, bottleneck flagged, click to drill in ---
+  const funStages=[["Intake","🌱 New idea"],["Scripting","✍️ Scripting"],["Ready to Edit","🎬 Ready to edit"],["Editing","✂️ Editing"],["Review","👀 Review"],["Ready to Post","✅ Ready to post"]];
+  const funnel=`<div class="funnel">${funStages.map(([s,l],i)=>{const n=TASKS.filter(t=>t.stage===s).length,isB=(s===bn.s&&bn.n>0);return `<div class="fstep ${COO_FILTER===s?'active':''} ${isB?'bn':''}" onclick="setCooFilter('${s}')" title="Click to see these videos below"><div class="fn">${n}</div><div class="fl">${l}${isB?' ⛔':''}</div></div>${i<funStages.length-1?'<span class="farr">›</span>':''}`;}).join("")}</div>`;
   // --- tiles double as filters for the queue below ---
   const tiles=[
     {n:stuck.length,l:"📅 Ready, past date",c:stuck.length?"red":"green",f:"late"},
@@ -533,6 +546,7 @@ function cooView(){
     if(t.wait==="Client")return '<span class="badge">on client</span>';
     return `<span class="badge">${STAGEL[t.stage]||t.stage}</span>`;};
   const preds={late:t=>dueInfo(t).stuck,today:t=>dueInfo(t).today,client:t=>t.wait==="Client",editing:t=>t.stage==="Editing",scripting:t=>t.stage==="Scripting",over:t=>overSet.has(t.owner)&&ACTIVE.includes(t.stage)};
+  ["Intake","Scripting","Ready to Edit","Editing","Review","Ready to Post"].forEach(s=>preds[s]=t=>t.stage===s);
   let list=COO_FILTER==="all"?TASKS.filter(t=>rankOf(t)<99):TASKS.filter(preds[COO_FILTER]||(()=>false));
   list=list.slice().sort((a,b)=>rankOf(a)-rankOf(b)||dl(b)-dl(a));
   const doRow=t=>{const badge=badgeOf(t);
@@ -545,16 +559,26 @@ function cooView(){
     const more=arr.length>8?`<div class="morelink" style="cursor:pointer" onclick="${fn}()">${exp?"▲ Show less":"▾ Show all "+arr.length}</div>`:"";
     const body=shown.length?shown.map(doRow).join("")+more:'<div class="empty">Nothing here 🎉</div>';
     return `<div class="card"><h3><span class="ic"><span class="sq">${icon}</span>${title}</span><span class="sub">worst first · ${arr.length}</span></h3><div class="body">${body}</div></div>`;};
-  const filterChip=COO_FILTER!=="all"?`<div style="margin:2px 2px 12px;font-size:12.5px;color:var(--muted)">Filtered to <b style="color:var(--txt)">${(tiles.find(x=>x.f===COO_FILTER)||{}).l||COO_FILTER}</b> · ${list.length} <button class="switch" style="padding:3px 9px;margin-left:6px" onclick="setCooFilter('all')">clear ✕</button></div>`:"";
+  const filterChip=COO_FILTER!=="all"?`<div style="margin:2px 2px 12px;font-size:12.5px;color:var(--muted)">Filtered to <b style="color:var(--txt)">${(tiles.find(x=>x.f===COO_FILTER)||{}).l||STAGEL[COO_FILTER]||COO_FILTER}</b> · ${list.length} <button class="switch" style="padding:3px 9px;margin-left:6px" onclick="setCooFilter('all')">clear ✕</button></div>`:"";
+  const edsSorted=[...EDITORS].sort((a,b)=>loadFor(b)-loadFor(a));
+  const bnEd=edsSorted[0], bnOver=loadFor(bnEd)>CAP;
+  const scSub=bnOver?`⛔ Bottleneck · ${bnEd}`:"load · output · quality";
   const scRow=n=>{const load=loadFor(n),mine=pub.filter(t=>t.owner===n),sh=mine.length,tt=mine.length?Math.round(mine.map(cycleHrs).reduce((a,b)=>a+b,0)/mine.length):0,rv=mine.length?mine.map(revs).reduce((a,b)=>a+b,0)/mine.length:0;
-    const pct=Math.min(load/CAP,1)*100,col=load>CAP?"var(--bad)":load>=CAP?"var(--warn)":"var(--ok)";
-    return `<div class="sc"><div class="sc-top"><span class="name">${mini(n)}${n}</span><span class="sc-load ${load>CAP?'od':''}">${load}/${CAP}d${load>CAP?' ⚠':''}</span></div><div class="track"><div class="fill" style="width:${pct}%;background:${col}"></div></div><div class="sc-meta"><span>📦 ${sh} shipped</span><span>⚡ ${tt}h avg</span><span class="${rv>2?'bad':''}">🔁 ${rv.toFixed(1)} rev${rv>2?' ⚠':''}</span></div></div>`;};
-  const scorecard=EDITORS.map(scRow).join("");
+    const pct=Math.min(load/CAP,1)*100,col=load>CAP?"var(--bad)":load>=CAP?"var(--warn)":"var(--ok)",isBn=(n===bnEd&&bnOver);
+    return `<div class="sc"><div class="sc-top"><span class="name">${mini(n)}${n}${isBn?' <span class="bnchip">⛔ bottleneck</span>':''}</span><span class="sc-load ${load>CAP?'od':''}">${load}/${CAP}d${load>CAP?' ⚠':''}</span></div><div class="track"><div class="fill" style="width:${pct}%;background:${col}"></div></div><div class="sc-meta"><span>📦 ${sh} shipped</span><span>⚡ ${tt}h avg</span><span class="${rv>2?'bad':''}">🔁 ${rv.toFixed(1)} rev${rv>2?' ⚠':''}</span></div></div>`;};
+  const scorecard=edsSorted.map(scRow).join("");
   const clients=[...new Set(TASKS.map(t=>t.client))].map(c=>{const act=TASKS.filter(t=>t.client===c&&t.stage!=="Published").length,pb=TASKS.filter(t=>t.client===c&&t.stage==="Published").length;return `<div class="row"><span class="clientchip">${c}</span><span class="title" style="color:var(--muted);font-weight:500">${act} in production · ${pb} shipped</span></div>`;}).join("");
   const staleRows=stale.length?stale.slice(0,8).map(t=>`<div class="row"><span class="title">${t.t}</span><span class="clientchip">${t.client}</span><span class="badge amber">${daysInStage(t)}d in ${STAGEL[t.stage]||t.stage}</span>${edSelect(t,t.owner?"Move ▾":"Assign ▾")}<button class="del" title="Remove from dashboard — kept in Notion" onclick="delVideo('${t.id}')">📥</button></div>`).join(""):'<div class="empty">Nothing stalling 🎉</div>';
+  // --- full company board: every video, every stage, nothing hidden ---
+  const cbStages=["Intake","Scripting","Ready to Edit","Editing","Review","Changes","Ready to Post","Published"];
+  const cbTotal=TASKS.length, cbWip=TASKS.filter(t=>t.stage!=="Published").length;
+  const cbStrip=`<div class="stagebar" style="flex-wrap:wrap">${cbStages.map(s=>{const n=TASKS.filter(t=>t.stage===s).length;return `<div class="stagepill" style="cursor:default"><b>${n}</b><span>${STAGEL[s]||s}</span></div>`;}).join("")}</div>`;
+  const cbBoard=COO_BOARD?`<div class="kanban">${cbStages.map(st=>kcol(st,TASKS.filter(t=>t.stage===st))).join("")}</div>`:cbStrip;
   document.getElementById("dash").innerHTML=`
     ${greet("Two queues — short-form and long-form, worst thing first. Tap any number to filter, and act right from the row.")}
     ${pulse}
+    <div style="font-size:12px;font-weight:700;color:var(--muted);margin:2px 2px 8px">🔀 Pipeline — where every video stands <span class="info" data-tip="Count in each stage, left to right. The ⛔ stage is your bottleneck (most work piled up). Click any stage to see those exact videos in the queues below.">i</span></div>
+    ${funnel}
     <div class="tiles">${tilesHtml}</div>
     ${filterChip}
     <div class="grid2" style="grid-template-columns:1fr 1fr">
@@ -562,10 +586,14 @@ function cooView(){
       <div>${queueCard(longs,COO_EXP_L,"cooMoreL","Long-form · do now","🎞️")}</div>
     </div>
     <div class="grid2">
-      <div><div class="card"><h3><span class="ic"><span class="sq">📊</span>Editor scorecard <span class="info" data-tip="Load vs capacity, plus each editor's shipped count, average turnaround, and revision rate. More than 2 revisions usually means a briefing problem, not editing.">i</span></span><span class="sub">load · output · quality</span></h3><div class="body">${scorecard}</div></div></div>
+      <div><div class="card"><h3><span class="ic"><span class="sq">📊</span>Editor scorecard <span class="info" data-tip="Load vs capacity, plus each editor's shipped count, average turnaround, and revision rate. Sorted heaviest-load first, so your bottleneck editor is on top. More than 2 revisions usually means a briefing problem, not editing.">i</span></span><span class="sub">${scSub}</span></h3><div class="body">${scorecard}</div></div></div>
       <div><div class="card"><h3><span class="ic"><span class="sq">👥</span>Clients</span><span class="sub">active</span></h3><div class="body">${clients}</div></div></div>
     </div>
     <div class="card"><h3><span class="ic"><span class="sq">⏳</span>Going stale <span class="info" data-tip="Videos sitting too long in one stage — even if not past a post date yet. Catch silent stalls before they become fires. Reassign or delete from any row.">i</span></span><span class="sub">${stale.length} stalling</span></h3><div class="body">${staleRows}</div></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin:24px 2px 12px">
+      <span style="font-size:13px;font-weight:700;color:var(--muted)">🗂️ Everything in the company <span class="info" data-tip="Every video, every client, every stage — the full company board. Nothing is hidden here. Expand to see and act on each card.">i</span> <span style="color:var(--faint);font-weight:500">· ${cbWip} in production · ${cbTotal} total</span></span>
+      <button class="switch" onclick="cooBoardT()">${COO_BOARD?"Collapse board":"Expand full board"}</button></div>
+    ${cbBoard}
     <p class="note">⚡ Every row is actionable — reassign, approve, or delete without leaving this screen. <b>${thisW}</b> shipped this week (${dW>=0?'+':''}${dW} vs last) · avg cycle <b>${avgCyc}h</b> · <b>${stale.length}</b> going stale.</p>`;
 }
 function capBar(n){const load=loadFor(n),pct=Math.min(load/CAP,1)*100,col=load>CAP?"var(--bad)":load>=CAP?"var(--warn)":"var(--ok)";

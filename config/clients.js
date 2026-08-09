@@ -171,6 +171,25 @@ module.exports = [
       refs: "REF VIDEO",
     },
   },
+  {
+    name: "Nicole",
+    databaseId: "0385d3f42524435ea0402cc08a72e0df",  // NICOLE'S CONTENT DATABASE
+    editorKind: "select",
+    props: {
+      title: "Video",
+      status: "Status",        // select-type, standard 1–13 numbered flow
+      editor: "Editor",        // select, UPPERCASE names
+      priority: "Priority",    // P1 / P2 / P3
+      effort: null,
+      waitingOn: null,
+      postDate: "Post Date",
+      type: "Type",            // PERSONAL / SPONSOR
+      format: "Format",        // LONG FORM / Other
+      footage: "Raw Footage",
+      brief: "Brief",
+      refs: "Ref Video",
+    },
+  },
 ];
 
 // ============================================================================
@@ -187,7 +206,7 @@ module.exports.INTAKE = {
   props: { title: "Video Title", creator: "Creator", editor: "Editor", type: "TYPE", frame: "Frame.io Link", status: "Status", format: "Format",
     threadChanges: "Changes Thread ID", threadMain: "Discord Thread ID", threadEditor: "Editor Thread ID", threadVideo: "Video Thread ID", threadPost: "Post Thread ID" },
   submitStatus: "In Review", // status the new Intake row gets on submit
-  creatorMap: { Valeri: "Valerie", Chris: "Chris", Brad: "Brad", Lindsay: "Lindsay", Duncan: "Duncan", EmTech: "EmTech", Jonathan: "Jonathan", Dmytro: "Dmytro", Joshua: "Joshua" },
+  creatorMap: { Valeri: "Valerie", Chris: "Chris", Brad: "Brad", Lindsay: "Lindsay", Duncan: "Duncan", EmTech: "EmTech", Jonathan: "Jonathan", Dmytro: "Dmytro", Joshua: "Joshua", Nicole: "NICOLE" },
   editorMap: { PARVEZ: "Parvez", SUMITH: "Sumith", VICKY: "Vicky", ABHISHEK: "Abhishek", PRABAL: "Prabal", UTSAV: "Utsav" },
 };
 
@@ -196,4 +215,10 @@ module.exports.INTAKE = {
 module.exports.ASSIGN_STATUS = "7- In Edit";
 // Status the source card moves to after an editor submits for review.
 module.exports.REVIEW_STATUS = "9- Approval Brand/Creator";
-
+// Per-board "Archive" status label used by "Remove from dashboard" — the video
+// stays in Notion under this status (recoverable), it just leaves every board.
+module.exports.ARCHIVE_STATUS = {
+  Valeri: "Archive", Chris: "Archived", Brad: "Archive", Lindsay: "Archived",
+  EmTech: "Archived", Duncan: "Archived", Dmytro: "Archive", Jonathan: "Archive",
+  Nicole: "Archive",
+};

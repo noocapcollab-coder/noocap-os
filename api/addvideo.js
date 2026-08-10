@@ -1,12 +1,28 @@
 // Add a new video (row) to a client's Notion board from the dashboard.
 // Starts at "1- Idea Assigned" so it enters the top of the pipeline.
-// Accepts: { client, title, type, format, ref?, month?, postDate? }
+// Accepts: { client, title, type, format, ref?, month?, transcript?, postDate? }
 // Scriptwriter / Ops / COO only.
 
 const { getUser } = require("../lib/auth");
 const { notion, invalidate, findStatusOption } = require("../lib/notion");
 const CLIENTS = require("../config/clients");
 const NEW_VIDEO_STATUS = CLIENTS.NEW_VIDEO_STATUS;
+
+// Build a "TRANSCRIPT" heading + paragraphs to drop onto the new video's page.
+function transcriptBlocks(transcript) {
+  const paras = String(transcript).replace(/\r/g, "").split(/\n\n+/);
+  const blocks = [{ object: "block", type: "heading_1", heading_1: { rich_text: [{ type: "text", text: { content: "TRANSCRIPT" } }] } }];
+  for (const para of paras) {
+    let text = para.trim();
+    if (!text) continue;
+    while (text.length > 1900) {
+      blocks.push({ object: "block", type: "paragraph", paragraph: { rich_text: [{ type: "text", text: { content: text.slice(0, 1900) } }] } });
+      text = text.slice(1900);
+    }
+    blocks.push({ object: "block", type: "paragraph", paragraph: { rich_text: [{ type: "text", text: { content: text } }] } });
+  }
+  return blocks;
+}
 
 // Build the right property payload for a value given the live property type.
 function payloadFor(prop, value) {
@@ -38,7 +54,7 @@ module.exports = async (req, res) => {
 
   let body = req.body;
   if (typeof body === "string") { try { body = JSON.parse(body || "{}"); } catch { body = {}; } }
-  const { client, title, type, format, ref, month, postDate } = body || {};
+  const { client, title, type, format, ref, month, transcript, postDate } = body || {};
   if (!client) return res.status(400).json({ error: "Pick a client" });
   if (!title || !title.trim()) return res.status(400).json({ error: "Give the video a title" });
 
@@ -65,6 +81,12 @@ module.exports = async (req, res) => {
     if (!props[f.title]) return res.status(400).json({ error: "Couldn't map the title field for this client" });
 
     const page = await notion.pages.create({ parent: { database_id: cfg.databaseId }, properties: props });
+
+    // Drop the transcript onto the new video's page body under a TRANSCRIPT heading.
+    if (transcript && transcript.trim()) {
+      try { await notion.blocks.children.append({ block_id: page.id, children: transcriptBlocks(transcript).slice(0, 100) }); } catch (e) {}
+    }
+
     invalidate();
     return res.json({ ok: true, id: page.id });
   } catch (e) {

@@ -288,7 +288,7 @@ function dueInfo(t){
   return{label:"Post "+lab};
 }
 // ===== API =====
-async function apiTasks(){const r=await fetch("/api/tasks");if(r.status===401)return null;if(!r.ok)throw new Error((await r.json()).error);return r.json();}
+async function apiTasks(fresh){const r=await fetch("/api/tasks"+(fresh?"?fresh=1":""));if(r.status===401)return null;if(!r.ok)throw new Error((await r.json()).error);return r.json();}
 async function apiLogin(code){const r=await fetch("/api/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({code})});return r.ok?r.json():null;}
 async function apiUpdate(p){const r=await fetch("/api/update",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(p)});if(!r.ok)alert("Couldn't save: "+((await r.json()).error||r.status));return r.ok;}
 // ===== login flow =====
@@ -339,7 +339,7 @@ const MOTIVES={
 };
 function roleKey(r){r=r||"";return r.startsWith("Ops")?"Ops":r==="COO"?"COO":r==="Scriptwriter"?"Scriptwriter":"Editor";}
 function setMotive(){const el=document.getElementById("motive");if(!el||!CURRENT)return;const arr=MOTIVES[roleKey(CURRENT.role)]||MOTIVES.Editor;const m=arr[Math.floor(Math.random()*arr.length)];el.innerHTML=`<div class="motive"><span class="spark">⚡</span><span class="mtext">${m}</span></div>`;}
-async function reload(){const d=await apiTasks();if(d){TASKS=(d.tasks||[]).filter(t=>t.stage!=="Archived");INTAKEX=d.intake||[];INTAKEALL=d.intakeAll||[];renderDash();}}
+async function reload(){const d=await apiTasks(true);if(d){TASKS=(d.tasks||[]).filter(t=>t.stage!=="Archived");INTAKEX=d.intake||[];INTAKEALL=d.intakeAll||[];renderDash();}}
 // Motion helpers — skeleton shimmer + count-up run only on the initial load
 // (boot), so in-place refreshes after actions don't re-flash the numbers.
 const REDUCED=window.matchMedia&&window.matchMedia("(prefers-reduced-motion:reduce)").matches;
@@ -679,10 +679,20 @@ function scriptView(){
   const toScript=TASKS.filter(t=>(t.stage==="Intake"||t.stage==="Scripting")&&!isApproval(t)&&fmtOk(t)).sort((a,b)=>(a.postDate?new Date(a.postDate):Infinity)-(b.postDate?new Date(b.postDate):Infinity));
   const awaiting=TASKS.filter(t=>isApproval(t)&&fmtOk(t));
   const fchips=[["all","All"],["short","🎬 Short-form"],["long","🎞️ Long-form"]].map(([k,l])=>`<button class="vfmt ${SCW_FMT===k?"on":""}" onclick="setScwFmt('${k}')">${l}</button>`).join("");
+  const clientOpts=`<option value="">Client…</option>`+ALL_CLIENTS.map(c=>`<option value="${c}" ${SCW_AC===c?"selected":""}>${c}</option>`).join("");
+  const addForm=SCW_ADD?`<div class="card" style="border-color:rgba(139,92,255,.4)"><div class="body"><div class="addrow">
+      <select class="esel2" onchange="setAdd('c',this.value)">${clientOpts}</select>
+      <input class="addinput" placeholder="Video title / idea…" value="${escH(SCW_AT)}" oninput="SCW_AT=this.value">
+      <select class="esel2" onchange="setAdd('ty',this.value)">${["Personal","Sponsor"].map(x=>`<option ${SCW_ATYPE===x?"selected":""}>${x}</option>`).join("")}</select>
+      <select class="esel2" onchange="setAdd('f',this.value)">${[["Short","🎬 Short-form"],["Long","🎞️ Long-form"]].map(([v,l])=>`<option value="${v}" ${SCW_AF===v?"selected":""}>${l}</option>`).join("")}</select>
+      <input class="addinput" style="max-width:150px" type="date" value="${SCW_ADATE}" oninput="SCW_ADATE=this.value">
+      <button class="act go bigbtn" onclick="submitAdd()" ${SCW_ABUSY?"disabled":""}>${SCW_ABUSY?"Adding…":"＋ Create"}</button>
+    </div><p class="colnote" style="padding:8px 2px 0">Creates a new video on that client's board at "1- Idea Assigned" — pick Short-form or Long-form.</p></div></div>`:"";
   document.getElementById("dash").innerHTML=`<h2 class="greet">Good morning 👋</h2><p class="greetsub">Your scripting queue across clients. Each card shows a 🎬 Short-form or 🎞️ Long-form tag — or filter below.</p>
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin:2px 2px 12px">
-      <span style="font-size:13px;font-weight:700;color:var(--muted)">🎬 Scripting board <span class="info" data-tip="Add or edit the script on a card, then Send for approval. To pull one back, tap ↩ Re-script. Filter Short vs Long with the buttons on the right.">i</span></span>
-      <div class="vfmts">${fchips}</div></div>
+      <span style="font-size:13px;font-weight:700;color:var(--muted)">🎬 Scripting board <span class="info" data-tip="Add a new video with ＋ Add video (pick client + Short/Long). Add or edit the script on a card, then Send for approval. Pull one back with ↩ Re-script.">i</span></span>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><div class="vfmts">${fchips}</div><button class="switch" onclick="openAdd()">${SCW_ADD?"Close":"＋ Add video"}</button></div></div>
+    ${addForm}
     <div class="editor-cols" style="grid-template-columns:1fr 1fr">
       ${scwCol("✍️ To script",toScript,"needs a script",'toscript')}
       ${scwCol("✅ Sent for approval",awaiting,"waiting on creator/brand · tap ↩ Re-script to pull back",'approval')}

@@ -623,7 +623,7 @@ async function writeScriptDraft(){
 }
 // ---- Scriptwriter workspace: add video, paste script, drag/mark done -------
 let SCW_ADD=false, SCW_AC="", SCW_AT="", SCW_ATYPE="Personal", SCW_AF="Short", SCW_ADATE="", SCW_ABUSY=false;
-let SCW_EDIT=null, SCW_TEXT="", SCW_SBUSY=false;
+let SCW_EDIT=null, SCW_TEXT="", SCW_SBUSY=false, SCW_LOADING=false;
 let DRAG=null;
 const isApproval=t=>(t.statusRaw||"").trim().charAt(0)==="5";
 function openAdd(){SCW_ADD=!SCW_ADD;scriptView();}
@@ -636,7 +636,12 @@ async function submitAdd(){
   SCW_ABUSY=false;
   if(ok){SCW_AT="";SCW_ADATE="";SCW_ADD=false;await reload();}else scriptView();
 }
-function toggleScript(id){SCW_EDIT=(SCW_EDIT===id?null:id);SCW_TEXT="";scriptView();}
+async function toggleScript(id){
+  if(SCW_EDIT===id){SCW_EDIT=null;SCW_TEXT="";return scriptView();}
+  SCW_EDIT=id;SCW_TEXT="";SCW_LOADING=true;scriptView();
+  try{const r=await fetch("/api/getscript",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({pageId:id})});const d=await r.json();if(r.ok)SCW_TEXT=d.script||"";}catch(e){}
+  SCW_LOADING=false;scriptView();
+}
 async function saveScript(id){
   if(!SCW_TEXT.trim()){alert("Paste the script first");return;}
   SCW_SBUSY=true;scriptView();
@@ -650,8 +655,8 @@ function scwAllow(e){e.preventDefault();}
 function scwDrop(e,target){e.preventDefault();if(DRAG&&target==="approval"){markDone(DRAG.id,DRAG.client);}DRAG=null;}
 function scwCard(t,writable){
   const editing=SCW_EDIT===t.id;
-  const box=editing?`<div class="scwbox"><textarea class="briefbox" style="min-height:120px" placeholder="Paste the finished script here…" oninput="SCW_TEXT=this.value">${escH(SCW_TEXT)}</textarea><div style="display:flex;gap:6px;margin-top:7px"><button class="act go" onclick="saveScript('${t.id}')" ${SCW_SBUSY?"disabled":""}>${SCW_SBUSY?"Saving…":"💾 Save to Notion"}</button><button class="switch" onclick="toggleScript('${t.id}')">Cancel</button></div></div>`:"";
-  const actions=writable?`<div class="scwacts"><button class="switch" onclick="toggleScript('${t.id}')">✍️ ${editing?"Close":"Add script"}</button><button class="act go" onclick="markDone('${t.id}','${t.client}')">✅ Send for approval</button></div>`:"";
+  const box=editing?`<div class="scwbox">${SCW_LOADING?`<div class="colnote" style="padding:0 2px 6px">Loading current script…</div>`:""}<textarea class="briefbox" style="min-height:120px" placeholder="Paste the finished script here…" oninput="SCW_TEXT=this.value">${escH(SCW_TEXT)}</textarea><div style="display:flex;gap:6px;margin-top:7px"><button class="act go" onclick="saveScript('${t.id}')" ${SCW_SBUSY||SCW_LOADING?"disabled":""}>${SCW_SBUSY?"Saving…":(SCW_TEXT.trim()?"💾 Save changes":"💾 Save to Notion")}</button><button class="switch" onclick="toggleScript('${t.id}')">Cancel</button></div></div>`:"";
+  const actions=writable?`<div class="scwacts"><button class="switch" onclick="toggleScript('${t.id}')">✍️ ${editing?"Close":"Add / edit script"}</button><button class="act go" onclick="markDone('${t.id}','${t.client}')">✅ Send for approval</button></div>`:"";
   return `<div class="kcard" draggable="${writable?"true":"false"}" ondragstart="scwDragStart(event,'${t.id}','${t.client}')"><div class="kmeta"><span class="eff">${t.effort}</span><span class="clientchip">${t.client}</span>${fmtBadge(t)}</div><div class="kt">${t.title}</div><div class="kmeta"><span class="who ${dueInfo(t).cls}">${dueInfo(t).label}</span>${t.waitingOn&&t.waitingOn!=="Nobody"?`<span class="wait">⏳ ${t.waitingOn}</span>`:""}</div>${actions}${box}</div>`;
 }
 function scwCol(title,items,note,target,writable){

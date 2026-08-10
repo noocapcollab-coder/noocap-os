@@ -522,8 +522,9 @@ async function apiAddvideo(p){const r=await fetch("/api/addvideo",{method:"POST"
 async function apiScriptdone(p){const r=await fetch("/api/scriptdone",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(p)});if(!r.ok){alert("Couldn't mark done: "+((await r.json()).error||r.status));return false;}return true;}
 async function apiRescript(p){const r=await fetch("/api/rescript",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(p)});if(!r.ok){alert("Couldn't pull back: "+((await r.json()).error||r.status));return false;}return true;}
 async function intakeStatus(id,status,btn){if(!confirm(status==="Changes"?"Send this back to the editor for changes? This fires the Discord ping.":"Approve and move to To Post? This notifies the team in Discord."))return;if(btn)btn.disabled=true;const ok=await apiUpdate({pageId:id,source:"intake",value:status});if(ok)await reload();else if(btn)btn.disabled=false;}
-const fmtBadge=t=>(t.type==="Long-form"||t.effort==="L")?'<span class="fmt lf">▬ Long</span>':'<span class="fmt sf">▪ Short</span>';
+const fmtBadge=t=>(t.type==="Long-form"||t.effort==="L"||/long/i.test(t.format||""))?'<span class="fmt lf">🎞️ Long</span>':'<span class="fmt sf">🎬 Short</span>';
 async function delVideo(id,btn){const b=TASKS.find(x=>x.id===id);const t=b||INTAKEX.find(x=>x.id===id);const nm=t?t.title:"this video";if(!confirm('Remove "'+nm+'" from the dashboard?\n\nIt stays in Notion (set to Archive) and leaves every board here. Reversible anytime by changing its status back.'))return;if(btn)btn.disabled=true;const body=b?{pageId:id,client:b.client,action:"remove"}:{pageId:id,source:"intake",action:"remove"};const ok=await apiUpdate(body);if(ok)await reload();else if(btn)btn.disabled=false;}
+async function deleteVideo(id,btn){const b=TASKS.find(x=>x.id===id);const t=b||INTAKEX.find(x=>x.id===id);const nm=t?t.title:"this video";if(!confirm('Delete "'+nm+'" from Notion?\n\nIt moves to Notion’s Trash — restorable there for ~30 days, then gone. It disappears from the board here.'))return;if(btn)btn.disabled=true;const body=b?{pageId:id,client:b.client,action:"delete"}:{pageId:id,source:"intake",action:"delete"};const ok=await apiUpdate(body);if(ok)await reload();else if(btn)btn.disabled=false;}
 async function submitReview(id,btn){
   const t=TASKS.find(x=>x.id===id);if(!t)return;
   const frame=prompt('Paste the Frame.io review link for "'+t.title+'":');
@@ -625,8 +626,10 @@ async function writeScriptDraft(){
 // ---- Scriptwriter workspace: add video, paste script, drag/mark done -------
 let SCW_ADD=false, SCW_AC="", SCW_AT="", SCW_ATYPE="Personal", SCW_AF="Short", SCW_ADATE="", SCW_ABUSY=false;
 let SCW_EDIT=null, SCW_TEXT="", SCW_SBUSY=false, SCW_LOADING=false;
-let DRAG=null;
+let DRAG=null, SCW_FMT="all";
 const isApproval=t=>(t.statusRaw||"").trim().charAt(0)==="5";
+const isLongT=t=>t.type==="Long-form"||t.effort==="L"||/long/i.test(t.format||"");
+function setScwFmt(f){SCW_FMT=f;scriptView();}
 function openAdd(){SCW_ADD=!SCW_ADD;scriptView();}
 function setAdd(k,v){({c:()=>SCW_AC=v,t:()=>SCW_AT=v,ty:()=>SCW_ATYPE=v,f:()=>SCW_AF=v,d:()=>SCW_ADATE=v})[k]();scriptView();}
 async function submitAdd(){
@@ -658,7 +661,7 @@ function scwDrop(e,target){e.preventDefault();if(DRAG){if(target==="approval"&&D
 function scwCard(t,kind){
   const editing=SCW_EDIT===t.id;
   const box=editing?`<div class="scwbox">${SCW_LOADING?`<div class="colnote" style="padding:0 2px 6px">Loading current script…</div>`:""}<textarea class="briefbox" style="min-height:120px" placeholder="Paste the finished script here…" oninput="SCW_TEXT=this.value">${escH(SCW_TEXT)}</textarea><div style="display:flex;gap:6px;margin-top:7px"><button class="act go" onclick="saveScript('${t.id}')" ${SCW_SBUSY||SCW_LOADING?"disabled":""}>${SCW_SBUSY?"Saving…":(SCW_TEXT.trim()?"💾 Save changes":"💾 Save to Notion")}</button><button class="switch" onclick="toggleScript('${t.id}')">Cancel</button></div></div>`:"";
-  const rm=`<button class="del" title="Remove from dashboard — kept in Notion" onclick="delVideo('${t.id}',this)">📥</button>`;
+  const rm=`<button class="del" title="Delete from Notion (moves to Trash)" onclick="deleteVideo('${t.id}',this)">🗑️</button>`;
   const actions=kind==="toscript"
     ? `<div class="scwacts"><button class="switch" onclick="toggleScript('${t.id}')">✍️ ${editing?"Close":"Add / edit script"}</button><button class="act go" onclick="markDone('${t.id}','${t.client}')">✅ Send for approval</button>${rm}</div>`
     : `<div class="scwacts"><button class="act warn" onclick="reScript('${t.id}','${t.client}')">↩ Re-script</button>${rm}</div>`;
@@ -670,15 +673,19 @@ function scwCol(title,items,note,kind){
 }
 function scriptView(){
   // Two columns: videos that need a script, and scripts sent for approval.
-  const toScript=TASKS.filter(t=>(t.stage==="Intake"||t.stage==="Scripting")&&!isApproval(t)).sort((a,b)=>(a.postDate?new Date(a.postDate):Infinity)-(b.postDate?new Date(b.postDate):Infinity));
-  const awaiting=TASKS.filter(t=>isApproval(t));
-  document.getElementById("dash").innerHTML=`<h2 class="greet">Good morning 👋</h2><p class="greetsub">Your scripting queue across clients. Done = strong hook, clear structure, claims checked, CTA, references.</p>
-    <div style="font-size:13px;font-weight:700;color:var(--muted);margin:2px 2px 12px">🎬 Scripting board <span class="info" data-tip="Add or edit the script on a card, then Send for approval. To pull one back, tap ↩ Re-script.">i</span></div>
+  const fmtOk=t=>SCW_FMT==="all"||(SCW_FMT==="long"?isLongT(t):!isLongT(t));
+  const toScript=TASKS.filter(t=>(t.stage==="Intake"||t.stage==="Scripting")&&!isApproval(t)&&fmtOk(t)).sort((a,b)=>(a.postDate?new Date(a.postDate):Infinity)-(b.postDate?new Date(b.postDate):Infinity));
+  const awaiting=TASKS.filter(t=>isApproval(t)&&fmtOk(t));
+  const fchips=[["all","All"],["short","🎬 Short-form"],["long","🎞️ Long-form"]].map(([k,l])=>`<button class="vfmt ${SCW_FMT===k?"on":""}" onclick="setScwFmt('${k}')">${l}</button>`).join("");
+  document.getElementById("dash").innerHTML=`<h2 class="greet">Good morning 👋</h2><p class="greetsub">Your scripting queue across clients. Each card shows a 🎬 Short-form or 🎞️ Long-form tag — or filter below.</p>
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin:2px 2px 12px">
+      <span style="font-size:13px;font-weight:700;color:var(--muted)">🎬 Scripting board <span class="info" data-tip="Add or edit the script on a card, then Send for approval. To pull one back, tap ↩ Re-script. Filter Short vs Long with the buttons on the right.">i</span></span>
+      <div class="vfmts">${fchips}</div></div>
     <div class="editor-cols" style="grid-template-columns:1fr 1fr">
       ${scwCol("✍️ To script",toScript,"needs a script",'toscript')}
       ${scwCol("✅ Sent for approval",awaiting,"waiting on creator/brand · tap ↩ Re-script to pull back",'approval')}
     </div>
-    <p class="note">Add the finished script with ✍️ Add / edit script, then ✅ Send for approval. Pull one back with ↩ Re-script.</p>`;
+    <p class="note">Each card is tagged 🎬 Short or 🎞️ Long. Add the script with ✍️ Add / edit script, then ✅ Send for approval. Pull one back with ↩ Re-script.</p>`;
 }
 // ===== EDITOR =====
 function editorView(){

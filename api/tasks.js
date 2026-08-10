@@ -6,6 +6,7 @@ module.exports = async (req, res) => {
   if (!u) return res.status(401).json({ error: "Not logged in" });
   try {
     res.setHeader("Cache-Control", "no-store");
+    const fresh = /[?&]fresh=1/.test(req.url || "");
     // Editors see: what they must edit now (from the creator boards) + the
     // status of what they've submitted (from Video Intake).
     if (u.role === "Editor") {

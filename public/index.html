@@ -625,6 +625,7 @@ async function writeScriptDraft(){
 }
 // ---- Scriptwriter workspace: add video, paste script, drag/mark done -------
 let SCW_ADD=false, SCW_AC="", SCW_AT="", SCW_ATYPE="Personal", SCW_AF="Short", SCW_ADATE="", SCW_AREF="", SCW_AMONTH="", SCW_ABUSY=false;
+let SCW_MONTHOPTS=[], SCW_MOLOADING=false;
 let SCW_EDIT=null, SCW_TEXT="", SCW_SBUSY=false, SCW_LOADING=false, SCW_TITLE="", SCW_REF="";
 let DRAG=null, SCW_FMT="all";
 const isApproval=t=>(t.statusRaw||"").trim().charAt(0)==="5";
@@ -632,6 +633,14 @@ const isLongT=t=>t.type==="Long-form"||t.effort==="L"||/long/i.test(t.format||""
 function setScwFmt(f){SCW_FMT=f;scriptView();}
 function openAdd(){SCW_ADD=!SCW_ADD;scriptView();}
 function setAdd(k,v){({c:()=>SCW_AC=v,t:()=>SCW_AT=v,ty:()=>SCW_ATYPE=v,f:()=>SCW_AF=v,d:()=>SCW_ADATE=v,mo:()=>SCW_AMONTH=v})[k]();scriptView();}
+function setClient(v){SCW_AC=v;loadMonths();}
+async function loadMonths(){
+  SCW_MONTHOPTS=[];SCW_AMONTH="";
+  if(!SCW_AC){scriptView();return;}
+  SCW_MOLOADING=true;scriptView();
+  try{const r=await fetch("/api/months",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({client:SCW_AC})});const d=await r.json();if(r.ok)SCW_MONTHOPTS=d.options||[];}catch(e){}
+  SCW_MOLOADING=false;scriptView();
+}
 async function submitAdd(){
   if(!SCW_AC){alert("Pick a client");return;}
   if(!SCW_AT.trim()){alert("Give the video a title");return;}
@@ -680,14 +689,14 @@ function scriptView(){
   const awaiting=TASKS.filter(t=>isApproval(t)&&fmtOk(t));
   const fchips=[["all","All"],["short","🎬 Short-form"],["long","🎞️ Long-form"]].map(([k,l])=>`<button class="vfmt ${SCW_FMT===k?"on":""}" onclick="setScwFmt('${k}')">${l}</button>`).join("");
   const clientOpts=`<option value="">Client…</option>`+ALL_CLIENTS.map(c=>`<option value="${c}" ${SCW_AC===c?"selected":""}>${c}</option>`).join("");
-  const monthNames=["January","February","March","April","May","June","July","August","September","October","November","December"];
-  const monthOpts=`<option value="">Month…</option>`+monthNames.map(m=>`<option ${SCW_AMONTH===m?"selected":""}>${m}</option>`).join("");
+  const moPlaceholder=SCW_MOLOADING?"Loading months…":(SCW_AC?(SCW_MONTHOPTS.length?"Month…":"No month field"):"Month (pick client)…");
+  const monthOpts=`<option value="">${moPlaceholder}</option>`+SCW_MONTHOPTS.map(m=>`<option ${SCW_AMONTH===m?"selected":""}>${escH(m)}</option>`).join("");
   const addForm=SCW_ADD?`<div class="card" style="border-color:rgba(139,92,255,.4)"><div class="body"><div class="addrow">
-      <select class="esel2" onchange="setAdd('c',this.value)">${clientOpts}</select>
+      <select class="esel2" onchange="setClient(this.value)">${clientOpts}</select>
       <input class="addinput" placeholder="Video title / idea…" value="${escH(SCW_AT)}" oninput="SCW_AT=this.value">
       <select class="esel2" onchange="setAdd('ty',this.value)">${["Personal","Sponsor"].map(x=>`<option ${SCW_ATYPE===x?"selected":""}>${x}</option>`).join("")}</select>
       <select class="esel2" onchange="setAdd('f',this.value)">${[["Short","🎬 Short-form"],["Long","🎞️ Long-form"]].map(([v,l])=>`<option value="${v}" ${SCW_AF===v?"selected":""}>${l}</option>`).join("")}</select>
-      <select class="esel2" onchange="setAdd('mo',this.value)">${monthOpts}</select>
+      <select class="esel2" onchange="setAdd('mo',this.value)" ${SCW_MOLOADING||!SCW_MONTHOPTS.length?"disabled":""}>${monthOpts}</select>
       <input class="addinput" placeholder="Ref Video link (optional)" value="${escH(SCW_AREF)}" oninput="SCW_AREF=this.value">
       <input class="addinput" style="max-width:150px" type="date" value="${SCW_ADATE}" oninput="SCW_ADATE=this.value">
       <button class="act go bigbtn" onclick="submitAdd()" ${SCW_ABUSY?"disabled":""}>${SCW_ABUSY?"Adding…":"＋ Create"}</button>

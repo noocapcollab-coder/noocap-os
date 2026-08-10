@@ -213,6 +213,8 @@ module.exports.INTAKE = {
 // Status the assign action writes on the creator board to fire the editor's
 // Discord ping (your automation triggers on Editor set + this status).
 module.exports.ASSIGN_STATUS = "7- In Edit";
+module.exports.NEW_VIDEO_STATUS = { default: "1- Idea Assigned" };
+module.exports.SCRIPT_APPROVAL_STATUS = { default: "5- Script Approval Brand/Creator", Brad: "5- Script Approval - Brand/Creator" };
 // Status the source card moves to after an editor submits for review.
 module.exports.REVIEW_STATUS = "9- Approval Brand/Creator";
 // Per-board "Archive" status label used by "Remove from dashboard" — the video

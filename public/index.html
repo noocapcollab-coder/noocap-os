@@ -339,7 +339,26 @@ const MOTIVES={
 };
 function roleKey(r){r=r||"";return r.startsWith("Ops")?"Ops":r==="COO"?"COO":r==="Scriptwriter"?"Scriptwriter":"Editor";}
 function setMotive(){const el=document.getElementById("motive");if(!el||!CURRENT)return;const arr=MOTIVES[roleKey(CURRENT.role)]||MOTIVES.Editor;const m=arr[Math.floor(Math.random()*arr.length)];el.innerHTML=`<div class="motive"><span class="spark">⚡</span><span class="mtext">${m}</span></div>`;}
-async function reload(){const d=await apiTasks(true);if(d){TASKS=(d.tasks||[]).filter(t=>t.stage!=="Archived");INTAKEX=d.intake||[];INTAKEALL=d.intakeAll||[];renderDash();}}
+// Optimistic moves that must survive a briefly-stale reload. After a status
+// write, the server board can still be cached at the old status for a moment;
+// we keep the card where the user put it until the server confirms the change,
+// then let go. id -> statusRaw we set it to, or "__deleted__".
+let SCW_MOVED={};
+function applyMoved(){
+  for(const id in SCW_MOVED){
+    const want=SCW_MOVED[id];
+    if(want==="__deleted__"){
+      if(TASKS.find(x=>x.id===id)) TASKS=TASKS.filter(x=>x.id!==id); // still stale — keep hidden
+      else delete SCW_MOVED[id];                                    // server caught up (gone)
+      continue;
+    }
+    const t=TASKS.find(x=>x.id===id);
+    if(!t){ delete SCW_MOVED[id]; continue; }
+    if((t.statusRaw||"").trim().charAt(0)===String(want).trim().charAt(0)) delete SCW_MOVED[id]; // reconciled
+    else { t.statusRaw=want; t.stage="Scripting"; }                                              // keep optimistic
+  }
+}
+async function reload(){const d=await apiTasks(true);if(d){TASKS=(d.tasks||[]).filter(t=>t.stage!=="Archived");INTAKEX=d.intake||[];INTAKEALL=d.intakeAll||[];applyMoved();renderDash();}}
 // Motion helpers — skeleton shimmer + count-up run only on the initial load
 // (boot), so in-place refreshes after actions don't re-flash the numbers.
 const REDUCED=window.matchMedia&&window.matchMedia("(prefers-reduced-motion:reduce)").matches;
@@ -679,7 +698,13 @@ async function scwConfirm(){
   if(c.action==="done")ok=await apiScriptdone({pageId:c.id,client:t.client});
   else if(c.action==="rescript")ok=await apiRescript({pageId:c.id,client:t.client});
   else if(c.action==="delete")ok=await apiUpdate({pageId:c.id,client:t.client,action:"delete"});
-  if(ok)await reload();else scriptView();
+  if(!ok)return scriptView();
+  // Move the card right away, then reconcile with the server on reload.
+  if(c.action==="done"){SCW_MOVED[c.id]="5- Script Approval";if(t.id){t.statusRaw="5- Script Approval";t.stage="Scripting";}}
+  else if(c.action==="rescript"){SCW_MOVED[c.id]="4- Script Draft";if(t.id){t.statusRaw="4- Script Draft";t.stage="Scripting";}}
+  else if(c.action==="delete"){SCW_MOVED[c.id]="__deleted__";TASKS=TASKS.filter(x=>x.id!==c.id);}
+  scriptView();
+  await reload();
 }
 function scwDragStart(e,id,client,from){DRAG={id,client,from};if(e.dataTransfer){e.dataTransfer.effectAllowed="move";}}
 function scwAllow(e){e.preventDefault();}

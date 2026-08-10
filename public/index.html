@@ -664,18 +664,40 @@ async function saveScript(id){
   SCW_SBUSY=false;
   if(ok){SCW_EDIT=null;SCW_TEXT="";await reload();}else scriptView();
 }
-async function markDone(id,client){if(!confirm("Send this script for approval? It moves to Script Approval and leaves your queue."))return;const ok=await apiScriptdone({pageId:id,client});if(ok)await reload();}
-async function reScript(id,client){if(!confirm("Pull this back to scripting? It moves back to your To-script column."))return;const ok=await apiRescript({pageId:id,client});if(ok)await reload();}
+// Status moves — used by drag-drop (a deliberate action, so no extra confirm).
+async function markDone(id,client){const ok=await apiScriptdone({pageId:id,client});if(ok)await reload();else scriptView();}
+async function reScript(id,client){const ok=await apiRescript({pageId:id,client});if(ok)await reload();else scriptView();}
+// Inline confirm on the card itself — window.confirm() is suppressed inside some
+// in-app browsers (the button would look dead), so we ask right on the card.
+let SCW_CONFIRM=null; // { id, action:'done'|'rescript'|'delete' }
+function scwAsk(id,action){SCW_CONFIRM={id,action};scriptView();}
+function scwCancel(){SCW_CONFIRM=null;scriptView();}
+async function scwConfirm(){
+  const c=SCW_CONFIRM;if(!c)return;SCW_CONFIRM=null;
+  const t=TASKS.find(x=>x.id===c.id)||{};
+  let ok=false;
+  if(c.action==="done")ok=await apiScriptdone({pageId:c.id,client:t.client});
+  else if(c.action==="rescript")ok=await apiRescript({pageId:c.id,client:t.client});
+  else if(c.action==="delete")ok=await apiUpdate({pageId:c.id,client:t.client,action:"delete"});
+  if(ok)await reload();else scriptView();
+}
 function scwDragStart(e,id,client,from){DRAG={id,client,from};if(e.dataTransfer){e.dataTransfer.effectAllowed="move";}}
 function scwAllow(e){e.preventDefault();}
 function scwDrop(e,target){e.preventDefault();if(DRAG){if(target==="approval"&&DRAG.from==="toscript")markDone(DRAG.id,DRAG.client);else if(target==="toscript"&&DRAG.from==="approval")reScript(DRAG.id,DRAG.client);}DRAG=null;}
 function scwCard(t,kind){
   const editing=SCW_EDIT===t.id;
   const box=editing?`<div class="scwbox">${SCW_LOADING?`<div class="colnote" style="padding:0 2px 6px">Loading…</div>`:""}<input class="addinput" style="width:100%;box-sizing:border-box;margin-bottom:7px" placeholder="Video name" value="${escH(SCW_TITLE)}" oninput="SCW_TITLE=this.value"><input class="addinput" style="width:100%;box-sizing:border-box;margin-bottom:7px" placeholder="Ref Video link (optional)" value="${escH(SCW_REF)}" oninput="SCW_REF=this.value"><textarea class="briefbox" style="min-height:120px" placeholder="Paste the finished script here…" oninput="SCW_TEXT=this.value">${escH(SCW_TEXT)}</textarea><div style="display:flex;gap:6px;margin-top:7px"><button class="act go" onclick="saveScript('${t.id}')" ${SCW_SBUSY||SCW_LOADING?"disabled":""}>${SCW_SBUSY?"Saving…":"💾 Save to Notion"}</button><button class="switch" onclick="toggleScript('${t.id}')">Cancel</button></div><div class="colnote" style="padding:6px 2px 0">Saves the name, Ref Video link, and script onto the video in Notion.</div></div>`:"";
-  const rm=`<button class="del" title="Delete from Notion (moves to Trash)" onclick="deleteVideo('${t.id}',this)">🗑️</button>`;
-  const actions=kind==="toscript"
-    ? `<div class="scwacts"><button class="switch" onclick="toggleScript('${t.id}')">✍️ ${editing?"Close":"Add / edit script"}</button><button class="act go" onclick="markDone('${t.id}','${t.client}')">✅ Send for approval</button>${rm}</div>`
-    : `<div class="scwacts"><button class="act warn" onclick="reScript('${t.id}','${t.client}')">↩ Re-script</button>${rm}</div>`;
+  const confirming=SCW_CONFIRM&&SCW_CONFIRM.id===t.id;
+  const rm=`<button class="del" title="Delete from Notion (moves to Trash)" onclick="scwAsk('${t.id}','delete')">🗑️</button>`;
+  let actions;
+  if(confirming){
+    const q={done:"Send for approval?",rescript:"Pull back to scripting?",delete:"Delete from Notion? (moves to Trash)"}[SCW_CONFIRM.action];
+    actions=`<div class="scwacts" style="align-items:center;flex-wrap:wrap"><span style="font-size:13px;font-weight:700">${q}</span><button class="act go" onclick="scwConfirm()">Yes</button><button class="switch" onclick="scwCancel()">Cancel</button></div>`;
+  } else if(kind==="toscript"){
+    actions=`<div class="scwacts"><button class="switch" onclick="toggleScript('${t.id}')">✍️ ${editing?"Close":"Add / edit script"}</button><button class="act go" onclick="scwAsk('${t.id}','done')">✅ Send for approval</button>${rm}</div>`;
+  } else {
+    actions=`<div class="scwacts"><button class="act warn" onclick="scwAsk('${t.id}','rescript')">↩ Re-script</button>${rm}</div>`;
+  }
   return `<div class="kcard" draggable="true" ondragstart="scwDragStart(event,'${t.id}','${t.client}','${kind}')"><div class="kmeta"><span class="eff">${t.effort}</span><span class="clientchip">${t.client}</span>${fmtBadge(t)}</div><div class="kt">${t.title}</div><div class="kmeta"><span class="who ${dueInfo(t).cls}">${dueInfo(t).label}</span>${t.waitingOn&&t.waitingOn!=="Nobody"?`<span class="wait">⏳ ${t.waitingOn}</span>`:""}</div>${actions}${box}</div>`;
 }
 function scwCol(title,items,note,kind){

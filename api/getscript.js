@@ -1,21 +1,29 @@
 // Read the current script off a video's Notion page so the scriptwriter can
-// open, edit, and re-save it. Prefers a "SCRIPT" section (what the dashboard
-// writes); falls back to a "TRANSCRIPT" section (what the scripting workflow
-// writes), so an existing script always shows in the box.
+// open, edit, and re-save it.
+//
+// A page can carry several sections. We recognize these headings (case-
+// insensitive) and load the best one, in this priority:
+//   1. SCRIPT / SCRIPT DRAFT / FINAL SCRIPT  — the actual written script
+//   2. TRANSCRIPT                            — raw reference (only if no script yet)
+// Everything under a section (including sub-headings like "Hook 1:", "Body:")
+// is captured until the next recognized section heading, so the whole draft
+// loads, not just the first block.
+//
 // Accepts: { pageId } -> { script, from }   — Scriptwriter / Ops / COO only.
 
 const { getUser } = require("../lib/auth");
 const { notion } = require("../lib/notion");
 
-// Headings we treat as a script section, in priority order.
-const SECTION_HEADS = ["SCRIPT", "TRANSCRIPT"];
+const SCRIPT_HEADS = ["SCRIPT", "SCRIPT DRAFT", "FINAL SCRIPT"]; // preferred, in order
+const FALLBACK_HEADS = ["TRANSCRIPT"];
+const RECOGNIZED = [...SCRIPT_HEADS, ...FALLBACK_HEADS];
 
 function headingText(b) {
   const t = b.type;
   if (t && t.indexOf("heading_") === 0) return (b[t].rich_text || []).map((x) => x.plain_text).join("").trim();
   return null;
 }
-// Pull readable text out of any text-bearing block (paragraphs, list items, quotes…).
+// Text out of any text-bearing block (paragraphs, list items, quotes, sub-headings…).
 function blockText(b) {
   const t = b.type;
   const node = b[t];
@@ -37,29 +45,27 @@ module.exports = async (req, res) => {
   if (!pageId) return res.status(400).json({ error: "Missing pageId" });
 
   try {
-    // Collect the text under each recognized section heading.
-    const sections = {}; // headingName(upper) -> [lines]
+    const sections = {}; // recognizedHeading(upper) -> [lines]
     let cursor, current = null;
     do {
       const r = await notion.blocks.children.list({ block_id: pageId, start_cursor: cursor, page_size: 100 });
       for (const b of r.results) {
         const h = headingText(b);
-        if (h !== null) {
-          const key = h.toUpperCase();
-          current = SECTION_HEADS.includes(key) ? key : null;
-          if (current && !sections[current]) sections[current] = [];
+        const key = h != null ? h.toUpperCase() : null;
+        if (key != null && RECOGNIZED.includes(key)) {
+          // Start (or switch to) a recognized section; don't capture the label itself.
+          current = key;
+          if (!sections[current]) sections[current] = [];
           continue;
         }
-        if (current) {
-          const txt = blockText(b);
-          if (txt) sections[current].push(txt);
-        }
+        // Any other block — including an unrecognized sub-heading — is content.
+        if (current) { const txt = blockText(b); if (txt) sections[current].push(txt); }
       }
       cursor = r.has_more ? r.next_cursor : null;
     } while (cursor);
 
     let from = null, lines = [];
-    for (const name of SECTION_HEADS) {
+    for (const name of [...SCRIPT_HEADS, ...FALLBACK_HEADS]) {
       if (sections[name] && sections[name].join("").trim()) { from = name; lines = sections[name]; break; }
     }
     return res.json({ script: lines.join("\n\n").trim(), from });

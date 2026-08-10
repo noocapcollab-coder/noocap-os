@@ -1,10 +1,14 @@
-// Add a new video (row) to a client's Notion board. Starts at "1- Idea Assigned".
-// Accepts: { client, title, type, format, postDate? } — Scriptwriter / Ops / COO only.
+// Add a new video (row) to a client's Notion board from the dashboard.
+// Starts at "1- Idea Assigned" so it enters the top of the pipeline.
+// Accepts: { client, title, type, format, ref?, month?, postDate? }
+// Scriptwriter / Ops / COO only.
+
 const { getUser } = require("../lib/auth");
 const { notion, invalidate } = require("../lib/notion");
 const CLIENTS = require("../config/clients");
 const NEW_VIDEO_STATUS = CLIENTS.NEW_VIDEO_STATUS;
 
+// Build the right property payload for a value given the live property type.
 function payloadFor(prop, value) {
   if (!prop || value == null || value === "") return null;
   switch (prop.type) {
@@ -14,8 +18,15 @@ function payloadFor(prop, value) {
     case "status": return { status: { name: String(value) } };
     case "multi_select": return { multi_select: [{ name: String(value) }] };
     case "date": return { date: { start: String(value) } };
+    case "url": return { url: String(value) };
     default: return null;
   }
+}
+
+// Find the board's Month property by name (each board names it differently:
+// "MONTH", "Month (Billing Cycle)", …) so we don't need a per-client mapping.
+function findMonthProp(P) {
+  return Object.keys(P).find((k) => /month/i.test(k)) || null;
 }
 
 module.exports = async (req, res) => {
@@ -24,27 +35,38 @@ module.exports = async (req, res) => {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
   if (!["Scriptwriter", "Ops", "COO"].includes(u.role))
     return res.status(403).json({ error: "Only the scriptwriter, Ops or COO can add videos" });
+
   let body = req.body;
   if (typeof body === "string") { try { body = JSON.parse(body || "{}"); } catch { body = {}; } }
-  const { client, title, type, format, postDate } = body || {};
+  const { client, title, type, format, ref, month, postDate } = body || {};
   if (!client) return res.status(400).json({ error: "Pick a client" });
   if (!title || !title.trim()) return res.status(400).json({ error: "Give the video a title" });
+
   const cfg = CLIENTS.find((c) => c.name === client);
   if (!cfg) return res.status(400).json({ error: `Unknown client "${client}"` });
   const f = cfg.props;
+
   try {
     const db = await notion.databases.retrieve({ database_id: cfg.databaseId });
     const P = db.properties;
     const props = {};
     const set = (name, value) => { if (name && P[name]) { const pl = payloadFor(P[name], value); if (pl) props[name] = pl; } };
+
     set(f.title, title.trim());
-    set(f.status, NEW_VIDEO_STATUS[client] || NEW_VIDEO_STATUS.default);
+    const startStatus = NEW_VIDEO_STATUS[client] || NEW_VIDEO_STATUS.default;
+    set(f.status, startStatus);
     if (type) set(f.type, type);
     if (format) set(f.format, format);
+    if (ref) set(f.refs, ref);
+    if (month) set(findMonthProp(P), month);
     if (postDate) set(f.postDate, postDate);
+
     if (!props[f.title]) return res.status(400).json({ error: "Couldn't map the title field for this client" });
+
     const page = await notion.pages.create({ parent: { database_id: cfg.databaseId }, properties: props });
     invalidate();
     return res.json({ ok: true, id: page.id });
-  } catch (e) { return res.status(500).json({ error: String(e.message || e) }); }
+  } catch (e) {
+    return res.status(500).json({ error: String(e.message || e) });
+  }
 };

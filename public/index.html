@@ -520,6 +520,7 @@ async function apiSubmit(p){const r=await fetch("/api/submit",{method:"POST",hea
 async function apiSavescript(p){const r=await fetch("/api/savescript",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(p)});if(!r.ok){alert("Couldn't save script: "+((await r.json()).error||r.status));return false;}return true;}
 async function apiAddvideo(p){const r=await fetch("/api/addvideo",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(p)});if(!r.ok){alert("Couldn't add video: "+((await r.json()).error||r.status));return false;}return true;}
 async function apiScriptdone(p){const r=await fetch("/api/scriptdone",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(p)});if(!r.ok){alert("Couldn't mark done: "+((await r.json()).error||r.status));return false;}return true;}
+async function apiRescript(p){const r=await fetch("/api/rescript",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(p)});if(!r.ok){alert("Couldn't pull back: "+((await r.json()).error||r.status));return false;}return true;}
 async function intakeStatus(id,status,btn){if(!confirm(status==="Changes"?"Send this back to the editor for changes? This fires the Discord ping.":"Approve and move to To Post? This notifies the team in Discord."))return;if(btn)btn.disabled=true;const ok=await apiUpdate({pageId:id,source:"intake",value:status});if(ok)await reload();else if(btn)btn.disabled=false;}
 const fmtBadge=t=>(t.type==="Long-form"||t.effort==="L")?'<span class="fmt lf">▬ Long</span>':'<span class="fmt sf">▪ Short</span>';
 async function delVideo(id,btn){const b=TASKS.find(x=>x.id===id);const t=b||INTAKEX.find(x=>x.id===id);const nm=t?t.title:"this video";if(!confirm('Remove "'+nm+'" from the dashboard?\n\nIt stays in Notion (set to Archive) and leaves every board here. Reversible anytime by changing its status back.'))return;if(btn)btn.disabled=true;const body=b?{pageId:id,client:b.client,action:"remove"}:{pageId:id,source:"intake",action:"remove"};const ok=await apiUpdate(body);if(ok)await reload();else if(btn)btn.disabled=false;}
@@ -650,48 +651,34 @@ async function saveScript(id){
   if(ok){SCW_EDIT=null;SCW_TEXT="";await reload();}else scriptView();
 }
 async function markDone(id,client){if(!confirm("Send this script for approval? It moves to Script Approval and leaves your queue."))return;const ok=await apiScriptdone({pageId:id,client});if(ok)await reload();}
-function scwDragStart(e,id,client){DRAG={id,client};if(e.dataTransfer){e.dataTransfer.effectAllowed="move";}}
+async function reScript(id,client){if(!confirm("Pull this back to scripting? It moves back to your To-script column."))return;const ok=await apiRescript({pageId:id,client});if(ok)await reload();}
+function scwDragStart(e,id,client,from){DRAG={id,client,from};if(e.dataTransfer){e.dataTransfer.effectAllowed="move";}}
 function scwAllow(e){e.preventDefault();}
-function scwDrop(e,target){e.preventDefault();if(DRAG&&target==="approval"){markDone(DRAG.id,DRAG.client);}DRAG=null;}
-function scwCard(t,writable){
+function scwDrop(e,target){e.preventDefault();if(DRAG){if(target==="approval"&&DRAG.from==="toscript")markDone(DRAG.id,DRAG.client);else if(target==="toscript"&&DRAG.from==="approval")reScript(DRAG.id,DRAG.client);}DRAG=null;}
+function scwCard(t,kind){
   const editing=SCW_EDIT===t.id;
   const box=editing?`<div class="scwbox">${SCW_LOADING?`<div class="colnote" style="padding:0 2px 6px">Loading current script…</div>`:""}<textarea class="briefbox" style="min-height:120px" placeholder="Paste the finished script here…" oninput="SCW_TEXT=this.value">${escH(SCW_TEXT)}</textarea><div style="display:flex;gap:6px;margin-top:7px"><button class="act go" onclick="saveScript('${t.id}')" ${SCW_SBUSY||SCW_LOADING?"disabled":""}>${SCW_SBUSY?"Saving…":(SCW_TEXT.trim()?"💾 Save changes":"💾 Save to Notion")}</button><button class="switch" onclick="toggleScript('${t.id}')">Cancel</button></div></div>`:"";
-  const actions=writable?`<div class="scwacts"><button class="switch" onclick="toggleScript('${t.id}')">✍️ ${editing?"Close":"Add / edit script"}</button><button class="act go" onclick="markDone('${t.id}','${t.client}')">✅ Send for approval</button></div>`:"";
-  return `<div class="kcard" draggable="${writable?"true":"false"}" ondragstart="scwDragStart(event,'${t.id}','${t.client}')"><div class="kmeta"><span class="eff">${t.effort}</span><span class="clientchip">${t.client}</span>${fmtBadge(t)}</div><div class="kt">${t.title}</div><div class="kmeta"><span class="who ${dueInfo(t).cls}">${dueInfo(t).label}</span>${t.waitingOn&&t.waitingOn!=="Nobody"?`<span class="wait">⏳ ${t.waitingOn}</span>`:""}</div>${actions}${box}</div>`;
+  const rm=`<button class="del" title="Remove from dashboard — kept in Notion" onclick="delVideo('${t.id}',this)">📥</button>`;
+  const actions=kind==="toscript"
+    ? `<div class="scwacts"><button class="switch" onclick="toggleScript('${t.id}')">✍️ ${editing?"Close":"Add / edit script"}</button><button class="act go" onclick="markDone('${t.id}','${t.client}')">✅ Send for approval</button>${rm}</div>`
+    : `<div class="scwacts"><button class="act warn" onclick="reScript('${t.id}','${t.client}')">↩ Re-script</button>${rm}</div>`;
+  return `<div class="kcard" draggable="true" ondragstart="scwDragStart(event,'${t.id}','${t.client}','${kind}')"><div class="kmeta"><span class="eff">${t.effort}</span><span class="clientchip">${t.client}</span>${fmtBadge(t)}</div><div class="kt">${t.title}</div><div class="kmeta"><span class="who ${dueInfo(t).cls}">${dueInfo(t).label}</span>${t.waitingOn&&t.waitingOn!=="Nobody"?`<span class="wait">⏳ ${t.waitingOn}</span>`:""}</div>${actions}${box}</div>`;
 }
-function scwCol(title,items,note,target,writable){
-  const cards=items.length?items.map(t=>scwCard(t,writable)).join(""):`<div class="empty" style="padding:18px">—</div>`;
-  return `<div class="col" ondragover="scwAllow(event)" ondrop="scwDrop(event,'${target}')"><h4>${title}<span class="cnt">${items.length}</span></h4><div class="colnote">${note}</div><div class="stack">${cards}</div></div>`;
+function scwCol(title,items,note,kind){
+  const cards=items.length?items.map(t=>scwCard(t,kind)).join(""):`<div class="empty" style="padding:18px">—</div>`;
+  return `<div class="col" ondragover="scwAllow(event)" ondrop="scwDrop(event,'${kind}')"><h4>${title}<span class="cnt">${items.length}</span></h4><div class="colnote">${note}</div><div class="stack">${cards}</div></div>`;
 }
 function scriptView(){
-  const btns=VOICE_CLIENTS.map(c=>`<button class="vbtn ${SCRIPT_CLIENT===c?"on":""}" onclick="pickScriptClient('${c}')">${c}</button>`).join("");
-  const fmt=["Short","Long"].map(f=>`<button class="vfmt ${SCRIPT_FORMAT===f?"on":""}" onclick="setScriptFormat('${f}')">${f==="Short"?"🎬 Short-form":"🎞️ Long-form"}</button>`).join("");
-  const out = SCRIPT_BUSY
-    ? `<div class="scriptout busy">Building the prompt…</div>`
-    : SCRIPT_ERR
-      ? `<div class="scriptout err">⚠️ ${escH(SCRIPT_ERR)}</div>`
-      : SCRIPT_OUT
-        ? `<div><div class="scriptout-bar"><span>${SCRIPT_COPIED?"✅ Copied — paste into Claude and hit enter":"Prompt for "+SCRIPT_CLIENT+" · "+SCRIPT_FORMAT+"-form"}</span><span><a class="act go" href="${CLAUDE_URL}" target="_blank" rel="noopener">Open Claude ↗</a> <button class="switch" id="copyBtn" onclick="recopy()">⧉ Copy again</button></span></div><div class="scriptout">${escH(SCRIPT_OUT)}</div></div>`
-        : `<div class="scriptout hint">Pick a client, paste the brief, then Copy the prompt and paste it into your Claude — it writes the script in that client's voice.</div>`;
   // Two columns: videos that need a script, and scripts sent for approval.
   const toScript=TASKS.filter(t=>(t.stage==="Intake"||t.stage==="Scripting")&&!isApproval(t)).sort((a,b)=>(a.postDate?new Date(a.postDate):Infinity)-(b.postDate?new Date(b.postDate):Infinity));
   const awaiting=TASKS.filter(t=>isApproval(t));
   document.getElementById("dash").innerHTML=`<h2 class="greet">Good morning 👋</h2><p class="greetsub">Your scripting queue across clients. Done = strong hook, clear structure, claims checked, CTA, references.</p>
-    <div class="card">
-      <h3><span class="ic"><span class="sq">✍️</span>Write in a client's voice <span class="info" data-tip="Pick a client, paste the brief, and Copy the ready prompt. Paste it into your own Claude and it writes in that client's voice.">i</span></span><span class="sub">${SCRIPT_CLIENT?SCRIPT_CLIENT+" selected":"pick a client"}</span></h3>
-      <div class="body">
-        <div class="voicebtns">${btns}</div>
-        <textarea id="briefBox" class="briefbox" placeholder="Paste the brief, idea, hook notes, reference links — anything to write from…" oninput="SCRIPT_BRIEF=this.value">${escH(SCRIPT_BRIEF)}</textarea>
-        <div class="voicebar"><div class="vfmts">${fmt}</div><button class="act go bigbtn" onclick="copyPrompt()" ${SCRIPT_BUSY?"disabled":""}>${SCRIPT_BUSY?"Building…":"⧉ Copy prompt"}</button></div>
-        ${out}
-      </div>
-    </div>
-    <div style="font-size:13px;font-weight:700;color:var(--muted);margin:6px 2px 12px">🎬 Scripting board <span class="info" data-tip="Write the script (Copy prompt above), paste it into ✍️ Add script on the card, then Send for approval — or drag the card across.">i</span></div>
+    <div style="font-size:13px;font-weight:700;color:var(--muted);margin:2px 2px 12px">🎬 Scripting board <span class="info" data-tip="Add or edit the script on a card, then Send for approval. To pull one back, tap ↩ Re-script.">i</span></div>
     <div class="editor-cols" style="grid-template-columns:1fr 1fr">
-      ${scwCol("✍️ To script",toScript,"needs a script",'toscript',true)}
-      ${scwCol("✅ Sent for approval",awaiting,"waiting on creator/brand",'approval',false)}
+      ${scwCol("✍️ To script",toScript,"needs a script",'toscript')}
+      ${scwCol("✅ Sent for approval",awaiting,"waiting on creator/brand · tap ↩ Re-script to pull back",'approval')}
     </div>
-    <p class="note">Write with Copy prompt above, paste the result into ✍️ Add script, then Send for approval.</p>`;
+    <p class="note">Add the finished script with ✍️ Add / edit script, then ✅ Send for approval. Pull one back with ↩ Re-script.</p>`;
 }
 // ===== EDITOR =====
 function editorView(){

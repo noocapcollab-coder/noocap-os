@@ -44,7 +44,7 @@ module.exports = async (req, res) => {
   // Not a permanent wipe: the page moves to Notion's trash and drops off every
   // board. Empty the Notion trash manually if it needs to be gone for good.
   if (action === "delete") {
-    if (!["COO", "Ops"].includes(u.role))
+    if (!["COO", "Ops", "Scriptwriter"].includes(u.role))
       return res.status(403).json({ error: "Only Ops or COO can delete videos" });
     try {
       await notion.pages.update({ page_id: pageId, archived: true });

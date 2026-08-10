@@ -47,6 +47,28 @@
   .tile.red .n{color:var(--bad)}.tile.amber .n{color:var(--warn)}.tile.green .n{color:var(--ok)}
   .grid2{display:grid;grid-template-columns:1.35fr 1fr;gap:16px;align-items:start}
   .grid2>div{min-width:0}
+  .voicebtns{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 12px}
+  .vbtn{background:var(--glass2);border:1px solid var(--line);color:var(--txt);border-radius:20px;padding:7px 15px;font-size:12.5px;font-weight:700;cursor:pointer;transition:.15s}
+  .vbtn:hover{border-color:rgba(139,92,255,.5)}
+  .vbtn.on{background:rgba(139,92,255,.2);border-color:rgba(139,92,255,.6);color:#d7c4ff}
+  .briefbox{width:100%;box-sizing:border-box;min-height:96px;resize:vertical;background:var(--bg);border:1px solid var(--line);border-radius:12px;color:var(--txt);font-family:inherit;font-size:13.5px;line-height:1.5;padding:12px 13px;outline:none}
+  .briefbox:focus{border-color:rgba(139,92,255,.5)}
+  .voicebar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:11px 0 4px;flex-wrap:wrap}
+  .vfmts{display:flex;gap:8px}
+  .vfmt{background:var(--glass2);border:1px solid var(--line);color:var(--muted);border-radius:9px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer}
+  .vfmt.on{background:rgba(46,195,139,.14);border-color:rgba(46,195,139,.4);color:#aef3d8}
+  .bigbtn{font-size:13.5px;padding:9px 18px}
+  .scriptout{white-space:pre-wrap;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:14px 15px;margin-top:12px;font-size:13.5px;line-height:1.6;color:var(--txt)}
+  .scriptout.hint,.scriptout.busy{color:var(--muted);font-style:normal}
+  .scriptout.err{color:#ff9297;border-color:rgba(255,88,96,.4)}
+  .scriptout-bar{display:flex;align-items:center;justify-content:space-between;margin-top:12px;font-size:12px;color:var(--muted);font-weight:600}
+  .scwacts{display:flex;gap:6px;margin-top:9px}
+  .scwbox{margin-top:9px}
+  .kcard[draggable="true"]{cursor:grab}.kcard[draggable="true"]:active{cursor:grabbing}
+  .addrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .addinput{flex:1;min-width:160px;background:var(--bg);border:1px solid var(--line);border-radius:9px;color:var(--txt);font-family:inherit;font-size:13px;padding:8px 11px;outline:none}
+  .addinput:focus{border-color:rgba(139,92,255,.5)}
+  .esel2{background:var(--glass2);border:1px solid var(--line);color:var(--txt);border-radius:9px;padding:8px 10px;font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;outline:none}
   .card{background:var(--glass);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:visible;margin-bottom:16px;min-width:0}
   .card h3{margin:0;padding:15px 17px;font-size:13px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;font-weight:700;border-radius:var(--r) var(--r) 0 0}
   .card h3 .ic{display:flex;align-items:center;gap:10px}.card h3 .sq{width:26px;height:26px;border-radius:8px;background:var(--glass2);border:1px solid var(--line);display:grid;place-items:center;font-size:13px}
@@ -495,6 +517,9 @@ function edSelect(t){return `<select class="esel" onchange="assignSel('${t.id}',
 async function flagBlocked(id,client,btn){if(btn)btn.disabled=true;const ok=await apiUpdate({pageId:id,client,field:"waitingOn",value:"Ops"});if(ok)await reload();else if(btn)btn.disabled=false;}
 async function submitForm(id,client){window.open(FORM_URL,"_blank");const ok=await apiUpdate({pageId:id,client,field:"status",value:"9- Approval Brand/Creator"});if(ok)await reload();}
 async function apiSubmit(p){const r=await fetch("/api/submit",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(p)});if(!r.ok){alert("Couldn't submit: "+((await r.json()).error||r.status));return false;}return true;}
+async function apiSavescript(p){const r=await fetch("/api/savescript",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(p)});if(!r.ok){alert("Couldn't save script: "+((await r.json()).error||r.status));return false;}return true;}
+async function apiAddvideo(p){const r=await fetch("/api/addvideo",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(p)});if(!r.ok){alert("Couldn't add video: "+((await r.json()).error||r.status));return false;}return true;}
+async function apiScriptdone(p){const r=await fetch("/api/scriptdone",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(p)});if(!r.ok){alert("Couldn't mark done: "+((await r.json()).error||r.status));return false;}return true;}
 async function intakeStatus(id,status,btn){if(!confirm(status==="Changes"?"Send this back to the editor for changes? This fires the Discord ping.":"Approve and move to To Post? This notifies the team in Discord."))return;if(btn)btn.disabled=true;const ok=await apiUpdate({pageId:id,source:"intake",value:status});if(ok)await reload();else if(btn)btn.disabled=false;}
 const fmtBadge=t=>(t.type==="Long-form"||t.effort==="L")?'<span class="fmt lf">▬ Long</span>':'<span class="fmt sf">▪ Short</span>';
 async function delVideo(id,btn){const b=TASKS.find(x=>x.id===id);const t=b||INTAKEX.find(x=>x.id===id);const nm=t?t.title:"this video";if(!confirm('Remove "'+nm+'" from the dashboard?\n\nIt stays in Notion (set to Archive) and leaves every board here. Reversible anytime by changing its status back.'))return;if(btn)btn.disabled=true;const body=b?{pageId:id,client:b.client,action:"remove"}:{pageId:id,source:"intake",action:"remove"};const ok=await apiUpdate(body);if(ok)await reload();else if(btn)btn.disabled=false;}
@@ -561,10 +586,121 @@ function kcol(title,items){
   return `<div class="col"><h4>${STAGEL[title]||title}<span class="cnt">${items.length}</span></h4><div class="stack">${cards}</div></div>`;
 }
 // ===== SCRIPTWRITER =====
+// ---- Scriptwriter: write in a client's trained voice --------------------
+const VOICE_CLIENTS=["Valeri","Chris","Brad","Lindsay","EmTech","Duncan","Dmytro","Jonathan","Nicole"];
+const ALL_CLIENTS=["Valeri","Chris","Brad","Lindsay","EmTech","Duncan","Dmytro","Jonathan","Nicole"];
+let SCRIPT_CLIENT=null, SCRIPT_BRIEF="", SCRIPT_FORMAT="Short", SCRIPT_OUT="", SCRIPT_BUSY=false, SCRIPT_ERR="", SCRIPT_COPIED=false;
+const CLAUDE_URL="https://claude.ai/new";
+const escH=s=>(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+function pickScriptClient(c){SCRIPT_CLIENT=(SCRIPT_CLIENT===c?null:c);SCRIPT_ERR="";SCRIPT_COPIED=false;scriptView();}
+function setScriptFormat(f){SCRIPT_FORMAT=f;scriptView();}
+// Primary (free): build the prompt server-side and copy it — she pastes into her own Claude.
+async function copyPrompt(){
+  if(!SCRIPT_CLIENT){SCRIPT_ERR="Pick a client first.";return scriptView();}
+  if(!SCRIPT_BRIEF.trim()){SCRIPT_ERR="Paste a brief or idea first.";return scriptView();}
+  SCRIPT_BUSY=true;SCRIPT_ERR="";SCRIPT_OUT="";SCRIPT_COPIED=false;scriptView();
+  try{
+    const r=await fetch("/api/prompt",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({client:SCRIPT_CLIENT,brief:SCRIPT_BRIEF,format:SCRIPT_FORMAT})});
+    const d=await r.json();
+    if(!r.ok){SCRIPT_ERR=d.error||("Error "+r.status);}
+    else{SCRIPT_OUT=d.prompt||"";try{await navigator.clipboard.writeText(SCRIPT_OUT);SCRIPT_COPIED=true;}catch(e){SCRIPT_COPIED=false;}}
+  }catch(e){SCRIPT_ERR=String(e.message||e);}
+  SCRIPT_BUSY=false;scriptView();
+}
+function recopy(){if(SCRIPT_OUT)navigator.clipboard.writeText(SCRIPT_OUT).then(()=>{const b=document.getElementById("copyBtn");if(b){b.textContent="✓ Copied";setTimeout(()=>{b.textContent="⧉ Copy again";},1400);}});}
+// Optional (costs API): generate the draft right here. Only works if ANTHROPIC_API_KEY is set.
+async function writeScriptDraft(){
+  if(!SCRIPT_CLIENT){SCRIPT_ERR="Pick a client first.";return scriptView();}
+  if(!SCRIPT_BRIEF.trim()){SCRIPT_ERR="Paste a brief or idea first.";return scriptView();}
+  SCRIPT_BUSY=true;SCRIPT_ERR="";SCRIPT_OUT="";SCRIPT_COPIED=false;scriptView();
+  try{
+    const r=await fetch("/api/script",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({client:SCRIPT_CLIENT,brief:SCRIPT_BRIEF,format:SCRIPT_FORMAT})});
+    const d=await r.json();
+    if(!r.ok){SCRIPT_ERR=d.error||("Error "+r.status);}
+    else{SCRIPT_OUT=d.script||"";}
+  }catch(e){SCRIPT_ERR=String(e.message||e);}
+  SCRIPT_BUSY=false;scriptView();
+}
+// ---- Scriptwriter workspace: add video, paste script, drag/mark done -------
+let SCW_ADD=false, SCW_AC="", SCW_AT="", SCW_ATYPE="Personal", SCW_AF="Short", SCW_ADATE="", SCW_ABUSY=false;
+let SCW_EDIT=null, SCW_TEXT="", SCW_SBUSY=false;
+let DRAG=null;
+const isApproval=t=>(t.statusRaw||"").trim().charAt(0)==="5";
+function openAdd(){SCW_ADD=!SCW_ADD;scriptView();}
+function setAdd(k,v){({c:()=>SCW_AC=v,t:()=>SCW_AT=v,ty:()=>SCW_ATYPE=v,f:()=>SCW_AF=v,d:()=>SCW_ADATE=v})[k]();scriptView();}
+async function submitAdd(){
+  if(!SCW_AC){alert("Pick a client");return;}
+  if(!SCW_AT.trim()){alert("Give the video a title");return;}
+  SCW_ABUSY=true;scriptView();
+  const ok=await apiAddvideo({client:SCW_AC,title:SCW_AT,type:SCW_ATYPE,format:SCW_AF,postDate:SCW_ADATE||undefined});
+  SCW_ABUSY=false;
+  if(ok){SCW_AT="";SCW_ADATE="";SCW_ADD=false;await reload();}else scriptView();
+}
+function toggleScript(id){SCW_EDIT=(SCW_EDIT===id?null:id);SCW_TEXT="";scriptView();}
+async function saveScript(id){
+  if(!SCW_TEXT.trim()){alert("Paste the script first");return;}
+  SCW_SBUSY=true;scriptView();
+  const ok=await apiSavescript({pageId:id,script:SCW_TEXT});
+  SCW_SBUSY=false;
+  if(ok){SCW_EDIT=null;SCW_TEXT="";await reload();}else scriptView();
+}
+async function markDone(id,client){if(!confirm("Mark this script done? It moves to Script Approval and leaves your queue."))return;const ok=await apiScriptdone({pageId:id,client});if(ok)await reload();}
+function scwDragStart(e,id,client){DRAG={id,client};if(e.dataTransfer){e.dataTransfer.effectAllowed="move";}}
+function scwAllow(e){e.preventDefault();}
+function scwDrop(e,target){e.preventDefault();if(DRAG&&target==="approval"){markDone(DRAG.id,DRAG.client);}DRAG=null;}
+function scwCard(t,writable){
+  const editing=SCW_EDIT===t.id;
+  const box=editing?`<div class="scwbox"><textarea class="briefbox" style="min-height:120px" placeholder="Paste the finished script here…" oninput="SCW_TEXT=this.value">${escH(SCW_TEXT)}</textarea><div style="display:flex;gap:6px;margin-top:7px"><button class="act go" onclick="saveScript('${t.id}')" ${SCW_SBUSY?"disabled":""}>${SCW_SBUSY?"Saving…":"💾 Save to Notion"}</button><button class="switch" onclick="toggleScript('${t.id}')">Cancel</button></div></div>`:"";
+  const actions=writable?`<div class="scwacts"><button class="switch" onclick="toggleScript('${t.id}')">✍️ ${editing?"Close":"Add script"}</button><button class="act go" onclick="markDone('${t.id}','${t.client}')">✓ Done</button></div>`:"";
+  return `<div class="kcard" draggable="${writable?"true":"false"}" ondragstart="scwDragStart(event,'${t.id}','${t.client}')"><div class="kmeta"><span class="eff">${t.effort}</span><span class="clientchip">${t.client}</span>${fmtBadge(t)}</div><div class="kt">${t.title}</div><div class="kmeta"><span class="who ${dueInfo(t).cls}">${dueInfo(t).label}</span>${t.waitingOn&&t.waitingOn!=="Nobody"?`<span class="wait">⏳ ${t.waitingOn}</span>`:""}</div>${actions}${box}</div>`;
+}
+function scwCol(title,items,note,target,writable){
+  const cards=items.length?items.map(t=>scwCard(t,writable)).join(""):`<div class="empty" style="padding:18px">—</div>`;
+  return `<div class="col" ondragover="scwAllow(event)" ondrop="scwDrop(event,'${target}')"><h4>${title}<span class="cnt">${items.length}</span></h4><div class="colnote">${note}</div><div class="stack">${cards}</div></div>`;
+}
 function scriptView(){
-  const cols=[{k:"To script",f:t=>["Intake","Scripting"].includes(t.stage)},{k:"Being checked",f:t=>["Review"].includes(t.stage)},{k:"Handed off →",f:t=>["Ready to Edit","Editing","Ready to Post"].includes(t.stage)}];
+  const btns=VOICE_CLIENTS.map(c=>`<button class="vbtn ${SCRIPT_CLIENT===c?"on":""}" onclick="pickScriptClient('${c}')">${c}</button>`).join("");
+  const fmt=["Short","Long"].map(f=>`<button class="vfmt ${SCRIPT_FORMAT===f?"on":""}" onclick="setScriptFormat('${f}')">${f==="Short"?"🎬 Short-form":"🎞️ Long-form"}</button>`).join("");
+  const out = SCRIPT_BUSY
+    ? `<div class="scriptout busy">Building the prompt…</div>`
+    : SCRIPT_ERR
+      ? `<div class="scriptout err">⚠️ ${escH(SCRIPT_ERR)}</div>`
+      : SCRIPT_OUT
+        ? `<div><div class="scriptout-bar"><span>${SCRIPT_COPIED?"✅ Copied — paste into Claude and hit enter":"Prompt for "+SCRIPT_CLIENT+" · "+SCRIPT_FORMAT+"-form"}</span><span><a class="act go" href="${CLAUDE_URL}" target="_blank" rel="noopener">Open Claude ↗</a> <button class="switch" id="copyBtn" onclick="recopy()">⧉ Copy again</button></span></div><div class="scriptout">${escH(SCRIPT_OUT)}</div></div>`
+        : `<div class="scriptout hint">Pick a client, paste the brief, then Copy the prompt and paste it into your Claude — it writes the script in that client's voice.</div>`;
+  // Columns keyed off the raw status: things to write, waiting on approval, handed off.
+  const toScript=TASKS.filter(t=>(t.stage==="Intake"||t.stage==="Scripting")&&!isApproval(t)).sort((a,b)=>(a.postDate?new Date(a.postDate):Infinity)-(b.postDate?new Date(b.postDate):Infinity));
+  const awaiting=TASKS.filter(t=>isApproval(t));
+  const handed=TASKS.filter(t=>["Ready to Edit","Editing","Review","Ready to Post"].includes(t.stage));
+  const clientOpts=`<option value="">Client…</option>`+ALL_CLIENTS.map(c=>`<option value="${c}" ${SCW_AC===c?"selected":""}>${c}</option>`).join("");
+  const addForm=SCW_ADD?`<div class="card" style="border-color:rgba(139,92,255,.4)"><div class="body"><div class="addrow">
+      <select class="esel2" onchange="setAdd('c',this.value)">${clientOpts}</select>
+      <input class="addinput" placeholder="Video title / idea…" value="${escH(SCW_AT)}" oninput="SCW_AT=this.value">
+      <select class="esel2" onchange="setAdd('ty',this.value)">${["Personal","Sponsor"].map(x=>`<option ${SCW_ATYPE===x?"selected":""}>${x}</option>`).join("")}</select>
+      <select class="esel2" onchange="setAdd('f',this.value)">${["Short","Long"].map(x=>`<option ${SCW_AF===x?"selected":""}>${x}</option>`).join("")}</select>
+      <input class="addinput" style="max-width:150px" type="date" value="${SCW_ADATE}" oninput="SCW_ADATE=this.value">
+      <button class="act go bigbtn" onclick="submitAdd()" ${SCW_ABUSY?"disabled":""}>${SCW_ABUSY?"Adding…":"＋ Create"}</button>
+    </div><p class="colnote" style="padding:8px 2px 0">Creates a new row on that client's board at "1- Idea Assigned".</p></div></div>`:"";
   document.getElementById("dash").innerHTML=`<h2 class="greet">Good morning 👋</h2><p class="greetsub">Your scripting queue across clients. Done = strong hook, clear structure, claims checked, CTA, references.</p>
-    <div class="editor-cols" style="grid-template-columns:repeat(3,1fr)">${cols.map(c=>colBox(c.k,TASKS.filter(c.f))).join("")}</div>`;
+    <div class="card">
+      <h3><span class="ic"><span class="sq">✍️</span>Write in a client's voice <span class="info" data-tip="Pick a client, paste the brief, and Copy the ready prompt. Paste it into your own Claude and it writes in that client's voice.">i</span></span><span class="sub">${SCRIPT_CLIENT?SCRIPT_CLIENT+" selected":"pick a client"}</span></h3>
+      <div class="body">
+        <div class="voicebtns">${btns}</div>
+        <textarea id="briefBox" class="briefbox" placeholder="Paste the brief, idea, hook notes, reference links — anything to write from…" oninput="SCRIPT_BRIEF=this.value">${escH(SCRIPT_BRIEF)}</textarea>
+        <div class="voicebar"><div class="vfmts">${fmt}</div><button class="act go bigbtn" onclick="copyPrompt()" ${SCRIPT_BUSY?"disabled":""}>${SCRIPT_BUSY?"Building…":"⧉ Copy prompt"}</button></div>
+        ${out}
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin:6px 2px 12px">
+      <span style="font-size:13px;font-weight:700;color:var(--muted)">🎬 Scripting board <span class="info" data-tip="Drag a card to Awaiting approval when the script is done, or use the ✓ Done button. Add the finished script with ✍️ Add script — it saves onto the video in Notion.">i</span></span>
+      <button class="switch" onclick="openAdd()">${SCW_ADD?"Close":"＋ Add video"}</button></div>
+    ${addForm}
+    <div class="editor-cols" style="grid-template-columns:repeat(3,1fr)">
+      ${scwCol("✍️ To script",toScript,"needs a script",'toscript',true)}
+      ${scwCol("⏳ Awaiting approval",awaiting,"script done · with creator/brand",'approval',false)}
+      ${scwCol("✅ Handed off →",handed,"past scripting",'handed',false)}
+    </div>
+    <p class="note">Tip: write with Copy prompt above, paste the result into ✍️ Add script on the card, then hit ✓ Done (or drag it to Awaiting approval).</p>`;
 }
 // ===== EDITOR =====
 function editorView(){

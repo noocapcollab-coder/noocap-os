@@ -625,7 +625,7 @@ async function writeScriptDraft(){
 }
 // ---- Scriptwriter workspace: add video, paste script, drag/mark done -------
 let SCW_ADD=false, SCW_AC="", SCW_AT="", SCW_ATYPE="Personal", SCW_AF="Short", SCW_ADATE="", SCW_ABUSY=false;
-let SCW_EDIT=null, SCW_TEXT="", SCW_SBUSY=false, SCW_LOADING=false;
+let SCW_EDIT=null, SCW_TEXT="", SCW_SBUSY=false, SCW_LOADING=false, SCW_TITLE="", SCW_REF="";
 let DRAG=null, SCW_FMT="all";
 const isApproval=t=>(t.statusRaw||"").trim().charAt(0)==="5";
 const isLongT=t=>t.type==="Long-form"||t.effort==="L"||/long/i.test(t.format||"");
@@ -642,14 +642,16 @@ async function submitAdd(){
 }
 async function toggleScript(id){
   if(SCW_EDIT===id){SCW_EDIT=null;SCW_TEXT="";return scriptView();}
-  SCW_EDIT=id;SCW_TEXT="";SCW_LOADING=true;scriptView();
+  const t=TASKS.find(x=>x.id===id)||{};
+  SCW_EDIT=id;SCW_TEXT="";SCW_TITLE=(t.title==="(untitled)"?"":(t.title||""));SCW_REF=t.refs||"";SCW_LOADING=true;scriptView();
   try{const r=await fetch("/api/getscript",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({pageId:id})});const d=await r.json();if(r.ok)SCW_TEXT=d.script||"";}catch(e){}
   SCW_LOADING=false;scriptView();
 }
 async function saveScript(id){
-  if(!SCW_TEXT.trim()){alert("Paste the script first");return;}
+  if(!SCW_TITLE.trim()){alert("Give the video a name first");return;}
+  const t=TASKS.find(x=>x.id===id)||{};
   SCW_SBUSY=true;scriptView();
-  const ok=await apiSavescript({pageId:id,script:SCW_TEXT});
+  const ok=await apiSavescript({pageId:id,client:t.client,title:SCW_TITLE,ref:SCW_REF,script:SCW_TEXT});
   SCW_SBUSY=false;
   if(ok){SCW_EDIT=null;SCW_TEXT="";await reload();}else scriptView();
 }
@@ -660,7 +662,7 @@ function scwAllow(e){e.preventDefault();}
 function scwDrop(e,target){e.preventDefault();if(DRAG){if(target==="approval"&&DRAG.from==="toscript")markDone(DRAG.id,DRAG.client);else if(target==="toscript"&&DRAG.from==="approval")reScript(DRAG.id,DRAG.client);}DRAG=null;}
 function scwCard(t,kind){
   const editing=SCW_EDIT===t.id;
-  const box=editing?`<div class="scwbox">${SCW_LOADING?`<div class="colnote" style="padding:0 2px 6px">Loading current script…</div>`:""}<textarea class="briefbox" style="min-height:120px" placeholder="Paste the finished script here…" oninput="SCW_TEXT=this.value">${escH(SCW_TEXT)}</textarea><div style="display:flex;gap:6px;margin-top:7px"><button class="act go" onclick="saveScript('${t.id}')" ${SCW_SBUSY||SCW_LOADING?"disabled":""}>${SCW_SBUSY?"Saving…":(SCW_TEXT.trim()?"💾 Save changes":"💾 Save to Notion")}</button><button class="switch" onclick="toggleScript('${t.id}')">Cancel</button></div></div>`:"";
+  const box=editing?`<div class="scwbox">${SCW_LOADING?`<div class="colnote" style="padding:0 2px 6px">Loading…</div>`:""}<input class="addinput" style="width:100%;box-sizing:border-box;margin-bottom:7px" placeholder="Video name" value="${escH(SCW_TITLE)}" oninput="SCW_TITLE=this.value"><input class="addinput" style="width:100%;box-sizing:border-box;margin-bottom:7px" placeholder="Ref Video link (optional)" value="${escH(SCW_REF)}" oninput="SCW_REF=this.value"><textarea class="briefbox" style="min-height:120px" placeholder="Paste the finished script here…" oninput="SCW_TEXT=this.value">${escH(SCW_TEXT)}</textarea><div style="display:flex;gap:6px;margin-top:7px"><button class="act go" onclick="saveScript('${t.id}')" ${SCW_SBUSY||SCW_LOADING?"disabled":""}>${SCW_SBUSY?"Saving…":"💾 Save to Notion"}</button><button class="switch" onclick="toggleScript('${t.id}')">Cancel</button></div><div class="colnote" style="padding:6px 2px 0">Saves the name, Ref Video link, and script onto the video in Notion.</div></div>`:"";
   const rm=`<button class="del" title="Delete from Notion (moves to Trash)" onclick="deleteVideo('${t.id}',this)">🗑️</button>`;
   const actions=kind==="toscript"
     ? `<div class="scwacts"><button class="switch" onclick="toggleScript('${t.id}')">✍️ ${editing?"Close":"Add / edit script"}</button><button class="act go" onclick="markDone('${t.id}','${t.client}')">✅ Send for approval</button>${rm}</div>`

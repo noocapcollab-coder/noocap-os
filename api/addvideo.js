@@ -4,7 +4,7 @@
 // Scriptwriter / Ops / COO only.
 
 const { getUser } = require("../lib/auth");
-const { notion, invalidate } = require("../lib/notion");
+const { notion, invalidate, findStatusOption } = require("../lib/notion");
 const CLIENTS = require("../config/clients");
 const NEW_VIDEO_STATUS = CLIENTS.NEW_VIDEO_STATUS;
 
@@ -53,7 +53,8 @@ module.exports = async (req, res) => {
     const set = (name, value) => { if (name && P[name]) { const pl = payloadFor(P[name], value); if (pl) props[name] = pl; } };
 
     set(f.title, title.trim());
-    const startStatus = NEW_VIDEO_STATUS[client] || NEW_VIDEO_STATUS.default;
+    // Use the board's real "1- Idea Assigned" option (names vary per board).
+    const startStatus = (await findStatusOption(cfg.databaseId, f.status, /^\s*1\b/)) || NEW_VIDEO_STATUS[client] || NEW_VIDEO_STATUS.default;
     set(f.status, startStatus);
     if (type) set(f.type, type);
     if (format) set(f.format, format);

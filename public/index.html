@@ -624,21 +624,21 @@ async function writeScriptDraft(){
   SCRIPT_BUSY=false;scriptView();
 }
 // ---- Scriptwriter workspace: add video, paste script, drag/mark done -------
-let SCW_ADD=false, SCW_AC="", SCW_AT="", SCW_ATYPE="Personal", SCW_AF="Short", SCW_ADATE="", SCW_ABUSY=false;
+let SCW_ADD=false, SCW_AC="", SCW_AT="", SCW_ATYPE="Personal", SCW_AF="Short", SCW_ADATE="", SCW_AREF="", SCW_AMONTH="", SCW_ABUSY=false;
 let SCW_EDIT=null, SCW_TEXT="", SCW_SBUSY=false, SCW_LOADING=false, SCW_TITLE="", SCW_REF="";
 let DRAG=null, SCW_FMT="all";
 const isApproval=t=>(t.statusRaw||"").trim().charAt(0)==="5";
 const isLongT=t=>t.type==="Long-form"||t.effort==="L"||/long/i.test(t.format||"");
 function setScwFmt(f){SCW_FMT=f;scriptView();}
 function openAdd(){SCW_ADD=!SCW_ADD;scriptView();}
-function setAdd(k,v){({c:()=>SCW_AC=v,t:()=>SCW_AT=v,ty:()=>SCW_ATYPE=v,f:()=>SCW_AF=v,d:()=>SCW_ADATE=v})[k]();scriptView();}
+function setAdd(k,v){({c:()=>SCW_AC=v,t:()=>SCW_AT=v,ty:()=>SCW_ATYPE=v,f:()=>SCW_AF=v,d:()=>SCW_ADATE=v,mo:()=>SCW_AMONTH=v})[k]();scriptView();}
 async function submitAdd(){
   if(!SCW_AC){alert("Pick a client");return;}
   if(!SCW_AT.trim()){alert("Give the video a title");return;}
   SCW_ABUSY=true;scriptView();
-  const ok=await apiAddvideo({client:SCW_AC,title:SCW_AT,type:SCW_ATYPE,format:SCW_AF,postDate:SCW_ADATE||undefined});
+  const ok=await apiAddvideo({client:SCW_AC,title:SCW_AT,type:SCW_ATYPE,format:SCW_AF,ref:SCW_AREF||undefined,month:SCW_AMONTH||undefined,postDate:SCW_ADATE||undefined});
   SCW_ABUSY=false;
-  if(ok){SCW_AT="";SCW_ADATE="";SCW_ADD=false;await reload();}else scriptView();
+  if(ok){SCW_AT="";SCW_AREF="";SCW_AMONTH="";SCW_ADATE="";SCW_ADD=false;await reload();}else scriptView();
 }
 async function toggleScript(id){
   if(SCW_EDIT===id){SCW_EDIT=null;SCW_TEXT="";return scriptView();}
@@ -680,14 +680,18 @@ function scriptView(){
   const awaiting=TASKS.filter(t=>isApproval(t)&&fmtOk(t));
   const fchips=[["all","All"],["short","🎬 Short-form"],["long","🎞️ Long-form"]].map(([k,l])=>`<button class="vfmt ${SCW_FMT===k?"on":""}" onclick="setScwFmt('${k}')">${l}</button>`).join("");
   const clientOpts=`<option value="">Client…</option>`+ALL_CLIENTS.map(c=>`<option value="${c}" ${SCW_AC===c?"selected":""}>${c}</option>`).join("");
+  const monthNames=["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const monthOpts=`<option value="">Month…</option>`+monthNames.map(m=>`<option ${SCW_AMONTH===m?"selected":""}>${m}</option>`).join("");
   const addForm=SCW_ADD?`<div class="card" style="border-color:rgba(139,92,255,.4)"><div class="body"><div class="addrow">
       <select class="esel2" onchange="setAdd('c',this.value)">${clientOpts}</select>
       <input class="addinput" placeholder="Video title / idea…" value="${escH(SCW_AT)}" oninput="SCW_AT=this.value">
       <select class="esel2" onchange="setAdd('ty',this.value)">${["Personal","Sponsor"].map(x=>`<option ${SCW_ATYPE===x?"selected":""}>${x}</option>`).join("")}</select>
       <select class="esel2" onchange="setAdd('f',this.value)">${[["Short","🎬 Short-form"],["Long","🎞️ Long-form"]].map(([v,l])=>`<option value="${v}" ${SCW_AF===v?"selected":""}>${l}</option>`).join("")}</select>
+      <select class="esel2" onchange="setAdd('mo',this.value)">${monthOpts}</select>
+      <input class="addinput" placeholder="Ref Video link (optional)" value="${escH(SCW_AREF)}" oninput="SCW_AREF=this.value">
       <input class="addinput" style="max-width:150px" type="date" value="${SCW_ADATE}" oninput="SCW_ADATE=this.value">
       <button class="act go bigbtn" onclick="submitAdd()" ${SCW_ABUSY?"disabled":""}>${SCW_ABUSY?"Adding…":"＋ Create"}</button>
-    </div><p class="colnote" style="padding:8px 2px 0">Creates a new video on that client's board at "1- Idea Assigned" — pick Short-form or Long-form.</p></div></div>`:"";
+    </div><p class="colnote" style="padding:8px 2px 0">Creates a new video on that client's board at "1- Idea Assigned" (To script) — pick Short-form or Long-form, drop in a Ref Video link and the month.</p></div></div>`:"";
   document.getElementById("dash").innerHTML=`<h2 class="greet">Good morning 👋</h2><p class="greetsub">Your scripting queue across clients. Each card shows a 🎬 Short-form or 🎞️ Long-form tag — or filter below.</p>
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin:2px 2px 12px">
       <span style="font-size:13px;font-weight:700;color:var(--muted)">🎬 Scripting board <span class="info" data-tip="Add a new video with ＋ Add video (pick client + Short/Long). Add or edit the script on a card, then Send for approval. Pull one back with ↩ Re-script.">i</span></span>

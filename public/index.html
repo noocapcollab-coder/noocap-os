@@ -644,14 +644,14 @@ async function saveScript(id){
   SCW_SBUSY=false;
   if(ok){SCW_EDIT=null;SCW_TEXT="";await reload();}else scriptView();
 }
-async function markDone(id,client){if(!confirm("Mark this script done? It moves to Script Approval and leaves your queue."))return;const ok=await apiScriptdone({pageId:id,client});if(ok)await reload();}
+async function markDone(id,client){if(!confirm("Send this script for approval? It moves to Script Approval and leaves your queue."))return;const ok=await apiScriptdone({pageId:id,client});if(ok)await reload();}
 function scwDragStart(e,id,client){DRAG={id,client};if(e.dataTransfer){e.dataTransfer.effectAllowed="move";}}
 function scwAllow(e){e.preventDefault();}
 function scwDrop(e,target){e.preventDefault();if(DRAG&&target==="approval"){markDone(DRAG.id,DRAG.client);}DRAG=null;}
 function scwCard(t,writable){
   const editing=SCW_EDIT===t.id;
   const box=editing?`<div class="scwbox"><textarea class="briefbox" style="min-height:120px" placeholder="Paste the finished script here…" oninput="SCW_TEXT=this.value">${escH(SCW_TEXT)}</textarea><div style="display:flex;gap:6px;margin-top:7px"><button class="act go" onclick="saveScript('${t.id}')" ${SCW_SBUSY?"disabled":""}>${SCW_SBUSY?"Saving…":"💾 Save to Notion"}</button><button class="switch" onclick="toggleScript('${t.id}')">Cancel</button></div></div>`:"";
-  const actions=writable?`<div class="scwacts"><button class="switch" onclick="toggleScript('${t.id}')">✍️ ${editing?"Close":"Add script"}</button><button class="act go" onclick="markDone('${t.id}','${t.client}')">✓ Done</button></div>`:"";
+  const actions=writable?`<div class="scwacts"><button class="switch" onclick="toggleScript('${t.id}')">✍️ ${editing?"Close":"Add script"}</button><button class="act go" onclick="markDone('${t.id}','${t.client}')">✅ Send for approval</button></div>`:"";
   return `<div class="kcard" draggable="${writable?"true":"false"}" ondragstart="scwDragStart(event,'${t.id}','${t.client}')"><div class="kmeta"><span class="eff">${t.effort}</span><span class="clientchip">${t.client}</span>${fmtBadge(t)}</div><div class="kt">${t.title}</div><div class="kmeta"><span class="who ${dueInfo(t).cls}">${dueInfo(t).label}</span>${t.waitingOn&&t.waitingOn!=="Nobody"?`<span class="wait">⏳ ${t.waitingOn}</span>`:""}</div>${actions}${box}</div>`;
 }
 function scwCol(title,items,note,target,writable){
@@ -668,19 +668,9 @@ function scriptView(){
       : SCRIPT_OUT
         ? `<div><div class="scriptout-bar"><span>${SCRIPT_COPIED?"✅ Copied — paste into Claude and hit enter":"Prompt for "+SCRIPT_CLIENT+" · "+SCRIPT_FORMAT+"-form"}</span><span><a class="act go" href="${CLAUDE_URL}" target="_blank" rel="noopener">Open Claude ↗</a> <button class="switch" id="copyBtn" onclick="recopy()">⧉ Copy again</button></span></div><div class="scriptout">${escH(SCRIPT_OUT)}</div></div>`
         : `<div class="scriptout hint">Pick a client, paste the brief, then Copy the prompt and paste it into your Claude — it writes the script in that client's voice.</div>`;
-  // Columns keyed off the raw status: things to write, waiting on approval, handed off.
+  // Two columns: videos that need a script, and scripts sent for approval.
   const toScript=TASKS.filter(t=>(t.stage==="Intake"||t.stage==="Scripting")&&!isApproval(t)).sort((a,b)=>(a.postDate?new Date(a.postDate):Infinity)-(b.postDate?new Date(b.postDate):Infinity));
   const awaiting=TASKS.filter(t=>isApproval(t));
-  const handed=TASKS.filter(t=>["Ready to Edit","Editing","Review","Ready to Post"].includes(t.stage));
-  const clientOpts=`<option value="">Client…</option>`+ALL_CLIENTS.map(c=>`<option value="${c}" ${SCW_AC===c?"selected":""}>${c}</option>`).join("");
-  const addForm=SCW_ADD?`<div class="card" style="border-color:rgba(139,92,255,.4)"><div class="body"><div class="addrow">
-      <select class="esel2" onchange="setAdd('c',this.value)">${clientOpts}</select>
-      <input class="addinput" placeholder="Video title / idea…" value="${escH(SCW_AT)}" oninput="SCW_AT=this.value">
-      <select class="esel2" onchange="setAdd('ty',this.value)">${["Personal","Sponsor"].map(x=>`<option ${SCW_ATYPE===x?"selected":""}>${x}</option>`).join("")}</select>
-      <select class="esel2" onchange="setAdd('f',this.value)">${["Short","Long"].map(x=>`<option ${SCW_AF===x?"selected":""}>${x}</option>`).join("")}</select>
-      <input class="addinput" style="max-width:150px" type="date" value="${SCW_ADATE}" oninput="SCW_ADATE=this.value">
-      <button class="act go bigbtn" onclick="submitAdd()" ${SCW_ABUSY?"disabled":""}>${SCW_ABUSY?"Adding…":"＋ Create"}</button>
-    </div><p class="colnote" style="padding:8px 2px 0">Creates a new row on that client's board at "1- Idea Assigned".</p></div></div>`:"";
   document.getElementById("dash").innerHTML=`<h2 class="greet">Good morning 👋</h2><p class="greetsub">Your scripting queue across clients. Done = strong hook, clear structure, claims checked, CTA, references.</p>
     <div class="card">
       <h3><span class="ic"><span class="sq">✍️</span>Write in a client's voice <span class="info" data-tip="Pick a client, paste the brief, and Copy the ready prompt. Paste it into your own Claude and it writes in that client's voice.">i</span></span><span class="sub">${SCRIPT_CLIENT?SCRIPT_CLIENT+" selected":"pick a client"}</span></h3>
@@ -691,16 +681,12 @@ function scriptView(){
         ${out}
       </div>
     </div>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin:6px 2px 12px">
-      <span style="font-size:13px;font-weight:700;color:var(--muted)">🎬 Scripting board <span class="info" data-tip="Drag a card to Awaiting approval when the script is done, or use the ✓ Done button. Add the finished script with ✍️ Add script — it saves onto the video in Notion.">i</span></span>
-      <button class="switch" onclick="openAdd()">${SCW_ADD?"Close":"＋ Add video"}</button></div>
-    ${addForm}
-    <div class="editor-cols" style="grid-template-columns:repeat(3,1fr)">
+    <div style="font-size:13px;font-weight:700;color:var(--muted);margin:6px 2px 12px">🎬 Scripting board <span class="info" data-tip="Write the script (Copy prompt above), paste it into ✍️ Add script on the card, then Send for approval — or drag the card across.">i</span></div>
+    <div class="editor-cols" style="grid-template-columns:1fr 1fr">
       ${scwCol("✍️ To script",toScript,"needs a script",'toscript',true)}
-      ${scwCol("⏳ Awaiting approval",awaiting,"script done · with creator/brand",'approval',false)}
-      ${scwCol("✅ Handed off →",handed,"past scripting",'handed',false)}
+      ${scwCol("✅ Sent for approval",awaiting,"waiting on creator/brand",'approval',false)}
     </div>
-    <p class="note">Tip: write with Copy prompt above, paste the result into ✍️ Add script on the card, then hit ✓ Done (or drag it to Awaiting approval).</p>`;
+    <p class="note">Write with Copy prompt above, paste the result into ✍️ Add script, then Send for approval.</p>`;
 }
 // ===== EDITOR =====
 function editorView(){

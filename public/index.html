@@ -643,7 +643,7 @@ async function writeScriptDraft(){
   SCRIPT_BUSY=false;scriptView();
 }
 // ---- Scriptwriter workspace: add video, paste script, drag/mark done -------
-let SCW_ADD=false, SCW_AC="", SCW_AT="", SCW_ATYPE="Personal", SCW_AF="Short", SCW_ADATE="", SCW_AREF="", SCW_AMONTH="", SCW_ABUSY=false;
+let SCW_ADD=false, SCW_AC="", SCW_AT="", SCW_ATYPE="Personal", SCW_AF="Short", SCW_ADATE="", SCW_AREF="", SCW_AMONTH="", SCW_ATRANSCRIPT="", SCW_ABUSY=false;
 let SCW_MONTHOPTS=[], SCW_MOLOADING=false;
 let SCW_EDIT=null, SCW_TEXT="", SCW_SBUSY=false, SCW_LOADING=false, SCW_TITLE="", SCW_REF="";
 let DRAG=null, SCW_FMT="all";
@@ -664,9 +664,9 @@ async function submitAdd(){
   if(!SCW_AC){alert("Pick a client");return;}
   if(!SCW_AT.trim()){alert("Give the video a title");return;}
   SCW_ABUSY=true;scriptView();
-  const ok=await apiAddvideo({client:SCW_AC,title:SCW_AT,type:SCW_ATYPE,format:SCW_AF,ref:SCW_AREF||undefined,month:SCW_AMONTH||undefined,postDate:SCW_ADATE||undefined});
+  const ok=await apiAddvideo({client:SCW_AC,title:SCW_AT,type:SCW_ATYPE,format:SCW_AF,ref:SCW_AREF||undefined,month:SCW_AMONTH||undefined,transcript:SCW_ATRANSCRIPT||undefined,postDate:SCW_ADATE||undefined});
   SCW_ABUSY=false;
-  if(ok){SCW_AT="";SCW_AREF="";SCW_AMONTH="";SCW_ADATE="";SCW_ADD=false;await reload();}else scriptView();
+  if(ok){SCW_AT="";SCW_AREF="";SCW_AMONTH="";SCW_ADATE="";SCW_ATRANSCRIPT="";SCW_ADD=false;await reload();}else scriptView();
 }
 async function toggleScript(id){
   if(SCW_EDIT===id){SCW_EDIT=null;SCW_TEXT="";return scriptView();}
@@ -747,7 +747,7 @@ function scriptView(){
       <input class="addinput" placeholder="Ref Video link (optional)" value="${escH(SCW_AREF)}" oninput="SCW_AREF=this.value">
       <input class="addinput" style="max-width:150px" type="date" value="${SCW_ADATE}" oninput="SCW_ADATE=this.value">
       <button class="act go bigbtn" onclick="submitAdd()" ${SCW_ABUSY?"disabled":""}>${SCW_ABUSY?"Adding…":"＋ Create"}</button>
-    </div><p class="colnote" style="padding:8px 2px 0">Creates a new video on that client's board at "1- Idea Assigned" (To script) — pick Short-form or Long-form, drop in a Ref Video link and the month.</p></div></div>`:"";
+    </div><textarea class="briefbox" style="width:100%;box-sizing:border-box;min-height:110px;margin-top:9px" placeholder="Paste the transcript here (optional) — it lands on the video's Notion page under a TRANSCRIPT heading" oninput="SCW_ATRANSCRIPT=this.value">${escH(SCW_ATRANSCRIPT)}</textarea><p class="colnote" style="padding:8px 2px 0">Creates a new video on that client's board at "1- Idea Assigned" (To script) — pick Short-form or Long-form, drop in a Ref Video link and the month. Any transcript you paste is written onto the video's page.</p></div></div>`:"";
   document.getElementById("dash").innerHTML=`<h2 class="greet">Good morning 👋</h2><p class="greetsub">Your scripting queue across clients. Each card shows a 🎬 Short-form or 🎞️ Long-form tag — or filter below.</p>
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin:2px 2px 12px">
       <span style="font-size:13px;font-weight:700;color:var(--muted)">🎬 Scripting board <span class="info" data-tip="Add a new video with ＋ Add video (pick client + Short/Long). Add or edit the script on a card, then Send for approval. Pull one back with ↩ Re-script.">i</span></span>

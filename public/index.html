@@ -232,6 +232,8 @@
   .deeplit{border-radius:14px;outline:2px solid rgba(139,92,255,.9);animation:deeplitpulse 1.15s ease-in-out 3}
   @keyframes deeplitpulse{0%,100%{box-shadow:0 0 0 3px rgba(139,92,255,.12)}50%{box-shadow:0 0 0 7px rgba(139,92,255,.5)}}
   #deeptoast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:9999;background:rgba(20,22,29,.96);border:1px solid rgba(139,92,255,.5);color:#e9ecf2;font:600 13.5px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:10px 16px;border-radius:999px;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+  .lnkbtn{margin-left:auto;background:transparent;border:1px solid rgba(255,255,255,.12);color:var(--muted,#9aa2b1);border-radius:7px;padding:1px 7px;font-size:12px;cursor:pointer;line-height:1.4}
+  .lnkbtn:hover{border-color:rgba(139,92,255,.6);color:#e9ecf2}
 </style>
 </head>
 <body>
@@ -747,6 +749,11 @@ async function scwConfirm(){
   scriptView();
   await reload();
 }
+function copyCardLink(id){
+  const url=location.origin+"/?v="+id;
+  const done=()=>{deepToast("🔗 Card link copied");setTimeout(()=>deepToast(""),2200);};
+  try{navigator.clipboard.writeText(url).then(done,()=>window.prompt("Copy this card link:",url));}catch(e){window.prompt("Copy this card link:",url);}
+}
 function scwDragStart(e,id,client,from){DRAG={id,client,from};if(e.dataTransfer){e.dataTransfer.effectAllowed="move";}}
 function scwAllow(e){e.preventDefault();}
 function scwDrop(e,target){e.preventDefault();if(DRAG){if(target==="approval"&&DRAG.from==="toscript")markDone(DRAG.id,DRAG.client);else if(target==="toscript"&&DRAG.from==="approval")reScript(DRAG.id,DRAG.client);}DRAG=null;}
@@ -764,7 +771,7 @@ function scwCard(t,kind){
   } else {
     actions=`<div class="scwacts"><button class="act warn" onclick="scwAsk('${t.id}','rescript')">↩ Re-script</button>${rm}</div>`;
   }
-  return `<div class="kcard" data-card="${t.id}" draggable="true" ondragstart="scwDragStart(event,'${t.id}','${t.client}','${kind}')"><div class="kmeta"><span class="eff">${t.effort}</span><span class="clientchip">${t.client}</span>${fmtBadge(t)}</div><div class="kt">${t.title}</div><div class="kmeta"><span class="who ${dueInfo(t).cls}">${dueInfo(t).label}</span>${t.waitingOn&&t.waitingOn!=="Nobody"?`<span class="wait">⏳ ${t.waitingOn}</span>`:""}</div>${actions}${box}</div>`;
+  return `<div class="kcard" data-card="${t.id}" draggable="true" ondragstart="scwDragStart(event,'${t.id}','${t.client}','${kind}')"><div class="kmeta"><span class="eff">${t.effort}</span><span class="clientchip">${t.client}</span>${fmtBadge(t)}<button class="lnkbtn" title="Copy this card's dashboard link" onclick="copyCardLink('${t.id}')">🔗</button></div><div class="kt">${t.title}</div><div class="kmeta"><span class="who ${dueInfo(t).cls}">${dueInfo(t).label}</span>${t.waitingOn&&t.waitingOn!=="Nobody"?`<span class="wait">⏳ ${t.waitingOn}</span>`:""}</div>${actions}${box}</div>`;
 }
 function scwCol(title,items,note,kind){
   const cards=items.length?items.map(t=>scwCard(t,kind)).join(""):`<div class="empty" style="padding:18px">—</div>`;

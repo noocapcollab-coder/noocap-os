@@ -282,14 +282,17 @@ let CURRENT=null, TASKS=[], INTAKEX=[], INTAKEALL=[];
 // Deep link: ?v=<notion-page-id> (or #v=…) opens the dashboard straight on that
 // video's card — the Discord "new script" automation posts this link.
 let DEEP_V=(function(){try{const p=new URLSearchParams(location.search);let v=p.get("v");if(!v&&location.hash)v=new URLSearchParams(location.hash.replace(/^#/,"")).get("v");return v||null;}catch(e){return null;}})();
-let DEEP_TRIED=false;
+let DEEP_TRIES=0;
 function maybeDeepLink(){
   if(!DEEP_V)return;
   const want=String(DEEP_V).replace(/-/g,"").toLowerCase();
   const el=[...document.querySelectorAll("[data-card]")].find(e=>e.getAttribute("data-card").replace(/-/g,"").toLowerCase()===want);
-  if(el){DEEP_V=null;try{el.scrollIntoView({behavior:"smooth",block:"center"});}catch(e){el.scrollIntoView();}el.classList.add("deeplit");setTimeout(()=>el.classList.remove("deeplit"),4200);return;}
-  // Card may be hidden by the short/long filter — clear it once and retry.
-  if(!DEEP_TRIED&&CURRENT&&CURRENT.role==="Scriptwriter"&&typeof SCW_FMT!=="undefined"&&SCW_FMT!=="all"){DEEP_TRIED=true;SCW_FMT="all";scriptView();maybeDeepLink();}
+  if(el){DEEP_V=null;DEEP_TRIES=0;try{el.scrollIntoView({behavior:"smooth",block:"center"});}catch(e){el.scrollIntoView();}el.classList.add("deeplit");setTimeout(()=>el.classList.remove("deeplit"),4200);return;}
+  // A short/long filter may be hiding it — clear once so every card is visible.
+  if(CURRENT&&CURRENT.role==="Scriptwriter"&&typeof SCW_FMT!=="undefined"&&SCW_FMT!=="all"){SCW_FMT="all";scriptView();return maybeDeepLink();}
+  // The card is likely brand-new (just created in Notion) and not loaded yet —
+  // pull fresh from the server and retry a few times until it shows up.
+  if(DEEP_TRIES<6){DEEP_TRIES++;setTimeout(()=>{if(DEEP_V)reload();},1600);}
 }
 const loadFor=n=>TASKS.filter(t=>t.owner===n&&ACTIVE.includes(t.stage)).reduce((s,t)=>s+(EFFPTS[t.effort]||0.5),0);
 function dueInfo(t){
@@ -396,7 +399,8 @@ function countUpAll(){
   });
 }
 async function boot(){
-  const d=await apiTasks();
+  // With a deep link, skip the cache so a just-created card is already loaded.
+  const d=await apiTasks(!!DEEP_V);
   if(!d){document.getElementById("app").classList.add("hide");document.getElementById("gate").classList.remove("hide");inputs[0].focus();return;}
   CURRENT=d.user;TASKS=(d.tasks||[]).filter(t=>t.stage!=="Archived");INTAKEX=d.intake||[];INTAKEALL=d.intakeAll||[];
   document.getElementById("gate").classList.add("hide");document.getElementById("app").classList.remove("hide");

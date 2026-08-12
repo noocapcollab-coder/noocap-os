@@ -287,6 +287,9 @@ let CURRENT=null, TASKS=[], INTAKEX=[], INTAKEALL=[];
 let DEEP_V=(function(){try{const p=new URLSearchParams(location.search);let v=p.get("v");if(!v&&location.hash)v=new URLSearchParams(location.hash.replace(/^#/,"")).get("v");return v||null;}catch(e){return null;}})();
 let DEEP_TRIES=0;
 let DEEP_HL=null; // card id to keep glowing after a deep-link open
+// The linked card is always shown (even if it's a blank/untitled row that would
+// otherwise be hidden from To-script), so the deep link always opens it.
+let DEEP_TARGET=(function(){try{const s=DEEP_V||"";const m=String(s).match(/[0-9a-f]{32}/i);return m?m[0].toLowerCase():(s?String(s).replace(/-/g,"").toLowerCase():null);}catch(e){return null;}})();
 function deepToast(msg){
   let el=document.getElementById("deeptoast");
   if(!msg){ if(el)el.remove(); return; }
@@ -303,11 +306,9 @@ function maybeDeepLink(){
   if(el){
     DEEP_V=null;DEEP_TRIES=0;deepToast("");
     const cid=el.getAttribute("data-card");
-    if(CURRENT&&CURRENT.role==="Scriptwriter"&&typeof toggleScript==="function"){
-      DEEP_HL=cid;
-      if(typeof SCW_EDIT==="undefined"||SCW_EDIT!==cid)toggleScript(cid); // open the add/edit box so she can add things
-      setTimeout(()=>{const c=document.querySelector('[data-card="'+cid+'"]');if(c){try{c.scrollIntoView({behavior:"smooth",block:"center"});}catch(e){}}},90);
-      setTimeout(()=>{DEEP_HL=null;const c=document.querySelector('[data-card="'+cid+'"]');if(c)c.classList.remove("deeplit");},9000);
+    if(CURRENT&&CURRENT.role==="Scriptwriter"&&typeof openDeepEditor==="function"){
+      DEEP_HL=cid;              // glow stays until she acts on the card (no timer)
+      openDeepEditor(cid);      // opens the add/edit box in a single render + scrolls
     } else {
       try{el.scrollIntoView({behavior:"smooth",block:"center"});}catch(e){el.scrollIntoView();}
       el.classList.add("deeplit");setTimeout(()=>el.classList.remove("deeplit"),4200);
@@ -726,13 +727,24 @@ async function submitAdd(){
   if(ok){SCW_AT="";SCW_AREF="";SCW_AMONTH="";SCW_ADATE="";SCW_ATRANSCRIPT="";SCW_ADD=false;await reload();}else scriptView();
 }
 async function toggleScript(id){
+  DEEP_HL=null; // any manual toggle ends the deep-link glow
   if(SCW_EDIT===id){SCW_EDIT=null;SCW_TEXT="";return scriptView();}
   const t=TASKS.find(x=>x.id===id)||{};
   SCW_EDIT=id;SCW_TEXT="";SCW_TITLE=(t.title==="(untitled)"?"":(t.title||""));SCW_REF=t.refs||"";SCW_LOADING=true;scriptView();
   try{const r=await fetch("/api/getscript",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({pageId:id})});const d=await r.json();if(r.ok)SCW_TEXT=d.script||"";}catch(e){}
   SCW_LOADING=false;scriptView();
 }
+// Deep-link open: fill the edit box and render ONCE (no loading flash), so the
+// board doesn't appear to refresh twice.
+async function openDeepEditor(id){
+  const t=(typeof TASKS!=="undefined"?TASKS.find(x=>x.id===id):null)||{};
+  SCW_EDIT=id;SCW_TITLE=(t.title==="(untitled)"?"":(t.title||""));SCW_REF=t.refs||"";SCW_TEXT="";SCW_LOADING=false;
+  try{const r=await fetch("/api/getscript",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({pageId:id})});const d=await r.json();if(r.ok)SCW_TEXT=d.script||"";}catch(e){}
+  scriptView();
+  const c=document.querySelector('[data-card="'+id+'"]');if(c){try{c.scrollIntoView({behavior:"smooth",block:"center"});}catch(e){}}
+}
 async function saveScript(id){
+  DEEP_HL=null; // saving ends the glow
   if(!SCW_TITLE.trim()){alert("Give the video a name first");return;}
   const t=TASKS.find(x=>x.id===id)||{};
   SCW_SBUSY=true;scriptView();
@@ -749,7 +761,7 @@ let SCW_CONFIRM=null; // { id, action:'done'|'rescript'|'delete' }
 function scwAsk(id,action){SCW_CONFIRM={id,action};scriptView();}
 function scwCancel(){SCW_CONFIRM=null;scriptView();}
 async function scwConfirm(){
-  const c=SCW_CONFIRM;if(!c)return;SCW_CONFIRM=null;
+  const c=SCW_CONFIRM;if(!c)return;SCW_CONFIRM=null;DEEP_HL=null;
   const t=TASKS.find(x=>x.id===c.id)||{};
   let ok=false;
   if(c.action==="done")ok=await apiScriptdone({pageId:c.id,client:t.client});
@@ -794,7 +806,11 @@ function scwCol(title,items,note,kind){
 function scriptView(){
   // Two columns: videos that need a script, and scripts sent for approval.
   const fmtOk=t=>SCW_FMT==="all"||(SCW_FMT==="long"?isLongT(t):!isLongT(t));
-  const toScript=TASKS.filter(t=>(t.stage==="Intake"||t.stage==="Scripting")&&!isApproval(t)&&fmtOk(t)).sort((a,b)=>(a.postDate?new Date(a.postDate):Infinity)-(b.postDate?new Date(b.postDate):Infinity));
+  // A blank placeholder row (no title AND no status) is clutter — hide it, unless
+  // it's the card a deep link is pointing at (so the link can still open it).
+  const blankRow=t=>(!t.title||t.title==="(untitled)"||!String(t.title).trim())&&!(t.statusRaw&&String(t.statusRaw).trim());
+  const showRow=t=>!blankRow(t)||(DEEP_TARGET&&hex32(t.id)===DEEP_TARGET);
+  const toScript=TASKS.filter(t=>(t.stage==="Intake"||t.stage==="Scripting")&&!isApproval(t)&&fmtOk(t)&&showRow(t)).sort((a,b)=>(a.postDate?new Date(a.postDate):Infinity)-(b.postDate?new Date(b.postDate):Infinity));
   const awaiting=TASKS.filter(t=>isApproval(t)&&fmtOk(t));
   const fchips=[["all","All"],["short","🎬 Short-form"],["long","🎞️ Long-form"]].map(([k,l])=>`<button class="vfmt ${SCW_FMT===k?"on":""}" onclick="setScwFmt('${k}')">${l}</button>`).join("");
   const clientOpts=`<option value="">Client…</option>`+ALL_CLIENTS.map(c=>`<option value="${c}" ${SCW_AC===c?"selected":""}>${c}</option>`).join("");

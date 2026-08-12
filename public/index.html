@@ -290,17 +290,22 @@ function deepToast(msg){
   if(!el){el=document.createElement("div");el.id="deeptoast";document.body.appendChild(el);}
   el.textContent=msg;
 }
+// Pull the 32-char Notion id out of whatever's in ?v= (bare id, dashed id, or a
+// full Notion URL pasted in), so matching is forgiving.
+function hex32(s){const m=String(s||"").match(/[0-9a-f]{32}/i);return m?m[0].toLowerCase():String(s||"").replace(/-/g,"").toLowerCase();}
 function maybeDeepLink(){
   if(!DEEP_V)return;
-  const want=String(DEEP_V).replace(/-/g,"").toLowerCase();
-  const el=[...document.querySelectorAll("[data-card]")].find(e=>e.getAttribute("data-card").replace(/-/g,"").toLowerCase()===want);
+  const want=hex32(DEEP_V);
+  const el=[...document.querySelectorAll("[data-card]")].find(e=>hex32(e.getAttribute("data-card"))===want);
   if(el){DEEP_V=null;DEEP_TRIES=0;deepToast("");try{el.scrollIntoView({behavior:"smooth",block:"center"});}catch(e){el.scrollIntoView();}el.classList.add("deeplit");setTimeout(()=>el.classList.remove("deeplit"),4200);return;}
   // A short/long filter may be hiding it — clear once so every card is visible.
   if(CURRENT&&CURRENT.role==="Scriptwriter"&&typeof SCW_FMT!=="undefined"&&SCW_FMT!=="all"){SCW_FMT="all";scriptView();return maybeDeepLink();}
-  // The card is likely brand-new (just created in Notion) and not loaded yet —
-  // pull fresh from the server and retry a few times until it shows up.
+  // Loaded, but not on the scripting board — it's already past scripting.
+  const inData=(typeof TASKS!=="undefined")&&TASKS.find(t=>hex32(t.id)===want);
+  if(inData){DEEP_V=null;deepToast('That video isn’t in the scripting queue — it’s at "'+(STAGEL[inData.stage]||inData.stage)+'".');setTimeout(()=>deepToast(""),7000);return;}
+  // Not loaded yet — brand-new / still syncing. Pull fresh and retry a few times.
   if(DEEP_TRIES<6){DEEP_TRIES++;deepToast("🔎 Opening the linked card…");setTimeout(()=>{if(DEEP_V)reload();},1600);}
-  else{DEEP_V=null;deepToast("Couldn't find that card — it may still be syncing. Refresh in a moment.");setTimeout(()=>deepToast(""),6000);}
+  else{DEEP_V=null;deepToast("Couldn’t find that card here — check the link’s id, or open it in Notion.");setTimeout(()=>deepToast(""),8000);}
 }
 const loadFor=n=>TASKS.filter(t=>t.owner===n&&ACTIVE.includes(t.stage)).reduce((s,t)=>s+(EFFPTS[t.effort]||0.5),0);
 function dueInfo(t){

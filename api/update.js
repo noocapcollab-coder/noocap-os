@@ -40,14 +40,22 @@ module.exports = async (req, res) => {
   const { pageId, client, field, value, source, action } = body || {};
   if (!pageId) return res.status(400).json({ error: "Missing pageId" });
 
-  // ---- Delete = archive to Notion trash (recoverable), COO/Ops only --------
-  // Not a permanent wipe: the page moves to Notion's trash and drops off every
-  // board. Empty the Notion trash manually if it needs to be gone for good.
-  if (action === "delete") {
+  // ---- Remove from dashboard (COO/Ops only) --------------------------------
+  // Board videos: set the board's Archive status — the page stays in Notion,
+  // it just leaves every dashboard view (reversible by changing status back).
+  // Intake rows have no Archive status, so those fall back to Notion trash.
+  if (action === "remove" || action === "delete") {
     if (!["COO", "Ops", "Scriptwriter"].includes(u.role))
-      return res.status(403).json({ error: "Only Ops or COO can delete videos" });
+      return res.status(403).json({ error: "Only the scriptwriter, Ops or COO can remove videos" });
     try {
-      await notion.pages.update({ page_id: pageId, archived: true });
+      const cfg = client && CLIENTS.find((c) => c.name === client);
+      const av = cfg && CLIENTS.ARCHIVE_STATUS[client];
+      if (cfg && cfg.props.status && av && action === "remove") {
+        const page = await notion.pages.retrieve({ page_id: pageId });
+        await notion.pages.update({ page_id: pageId, properties: { [cfg.props.status]: namedPayload(page, cfg.props.status, av) } });
+      } else {
+        await notion.pages.update({ page_id: pageId, archived: true }); // intake / fallback
+      }
       invalidate();
       return res.json({ ok: true });
     } catch (e) {
@@ -61,10 +69,17 @@ module.exports = async (req, res) => {
   if (source === "intake") {
     if (!["COO", "Ops"].includes(u.role))
       return res.status(403).json({ error: "Only Ops or COO can move review items" });
-    if (!INTAKE_STATUSES.includes(value))
-      return res.status(400).json({ error: "Unknown intake status" });
+    // Intake rows have no Archive status, so a "remove" (archive/empty value, or
+    // an explicit remove/delete action) trashes the page instead of erroring.
+    const wantsRemove = action === "remove" || action === "delete" || !value || /^archived?$/i.test(String(value));
     try {
-      await notion.pages.update({ page_id: pageId, properties: { [INTAKE.props.status]: { select: { name: value } } } });
+      if (wantsRemove) {
+        await notion.pages.update({ page_id: pageId, archived: true });
+      } else {
+        if (!INTAKE_STATUSES.includes(value))
+          return res.status(400).json({ error: "Unknown intake status" });
+        await notion.pages.update({ page_id: pageId, properties: { [INTAKE.props.status]: { select: { name: value } } } });
+      }
       invalidate();
       return res.json({ ok: true });
     } catch (e) {

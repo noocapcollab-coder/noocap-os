@@ -231,6 +231,7 @@
   /* Deep-link highlight — glows the card a Discord "new script" link points to. */
   .deeplit{border-radius:14px;outline:2px solid rgba(139,92,255,.9);animation:deeplitpulse 1.15s ease-in-out 3}
   @keyframes deeplitpulse{0%,100%{box-shadow:0 0 0 3px rgba(139,92,255,.12)}50%{box-shadow:0 0 0 7px rgba(139,92,255,.5)}}
+  #deeptoast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:9999;background:rgba(20,22,29,.96);border:1px solid rgba(139,92,255,.5);color:#e9ecf2;font:600 13.5px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:10px 16px;border-radius:999px;box-shadow:0 8px 30px rgba(0,0,0,.5)}
 </style>
 </head>
 <body>
@@ -283,16 +284,23 @@ let CURRENT=null, TASKS=[], INTAKEX=[], INTAKEALL=[];
 // video's card — the Discord "new script" automation posts this link.
 let DEEP_V=(function(){try{const p=new URLSearchParams(location.search);let v=p.get("v");if(!v&&location.hash)v=new URLSearchParams(location.hash.replace(/^#/,"")).get("v");return v||null;}catch(e){return null;}})();
 let DEEP_TRIES=0;
+function deepToast(msg){
+  let el=document.getElementById("deeptoast");
+  if(!msg){ if(el)el.remove(); return; }
+  if(!el){el=document.createElement("div");el.id="deeptoast";document.body.appendChild(el);}
+  el.textContent=msg;
+}
 function maybeDeepLink(){
   if(!DEEP_V)return;
   const want=String(DEEP_V).replace(/-/g,"").toLowerCase();
   const el=[...document.querySelectorAll("[data-card]")].find(e=>e.getAttribute("data-card").replace(/-/g,"").toLowerCase()===want);
-  if(el){DEEP_V=null;DEEP_TRIES=0;try{el.scrollIntoView({behavior:"smooth",block:"center"});}catch(e){el.scrollIntoView();}el.classList.add("deeplit");setTimeout(()=>el.classList.remove("deeplit"),4200);return;}
+  if(el){DEEP_V=null;DEEP_TRIES=0;deepToast("");try{el.scrollIntoView({behavior:"smooth",block:"center"});}catch(e){el.scrollIntoView();}el.classList.add("deeplit");setTimeout(()=>el.classList.remove("deeplit"),4200);return;}
   // A short/long filter may be hiding it — clear once so every card is visible.
   if(CURRENT&&CURRENT.role==="Scriptwriter"&&typeof SCW_FMT!=="undefined"&&SCW_FMT!=="all"){SCW_FMT="all";scriptView();return maybeDeepLink();}
   // The card is likely brand-new (just created in Notion) and not loaded yet —
   // pull fresh from the server and retry a few times until it shows up.
-  if(DEEP_TRIES<6){DEEP_TRIES++;setTimeout(()=>{if(DEEP_V)reload();},1600);}
+  if(DEEP_TRIES<6){DEEP_TRIES++;deepToast("🔎 Opening the linked card…");setTimeout(()=>{if(DEEP_V)reload();},1600);}
+  else{DEEP_V=null;deepToast("Couldn't find that card — it may still be syncing. Refresh in a moment.");setTimeout(()=>deepToast(""),6000);}
 }
 const loadFor=n=>TASKS.filter(t=>t.owner===n&&ACTIVE.includes(t.stage)).reduce((s,t)=>s+(EFFPTS[t.effort]||0.5),0);
 function dueInfo(t){

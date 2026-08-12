@@ -286,6 +286,7 @@ let CURRENT=null, TASKS=[], INTAKEX=[], INTAKEALL=[];
 // video's card — the Discord "new script" automation posts this link.
 let DEEP_V=(function(){try{const p=new URLSearchParams(location.search);let v=p.get("v");if(!v&&location.hash)v=new URLSearchParams(location.hash.replace(/^#/,"")).get("v");return v||null;}catch(e){return null;}})();
 let DEEP_TRIES=0;
+let DEEP_HL=null; // card id to keep glowing after a deep-link open
 function deepToast(msg){
   let el=document.getElementById("deeptoast");
   if(!msg){ if(el)el.remove(); return; }
@@ -299,7 +300,20 @@ function maybeDeepLink(){
   if(!DEEP_V)return;
   const want=hex32(DEEP_V);
   const el=[...document.querySelectorAll("[data-card]")].find(e=>hex32(e.getAttribute("data-card"))===want);
-  if(el){DEEP_V=null;DEEP_TRIES=0;deepToast("");try{el.scrollIntoView({behavior:"smooth",block:"center"});}catch(e){el.scrollIntoView();}el.classList.add("deeplit");setTimeout(()=>el.classList.remove("deeplit"),4200);return;}
+  if(el){
+    DEEP_V=null;DEEP_TRIES=0;deepToast("");
+    const cid=el.getAttribute("data-card");
+    if(CURRENT&&CURRENT.role==="Scriptwriter"&&typeof toggleScript==="function"){
+      DEEP_HL=cid;
+      if(typeof SCW_EDIT==="undefined"||SCW_EDIT!==cid)toggleScript(cid); // open the add/edit box so she can add things
+      setTimeout(()=>{const c=document.querySelector('[data-card="'+cid+'"]');if(c){try{c.scrollIntoView({behavior:"smooth",block:"center"});}catch(e){}}},90);
+      setTimeout(()=>{DEEP_HL=null;const c=document.querySelector('[data-card="'+cid+'"]');if(c)c.classList.remove("deeplit");},9000);
+    } else {
+      try{el.scrollIntoView({behavior:"smooth",block:"center"});}catch(e){el.scrollIntoView();}
+      el.classList.add("deeplit");setTimeout(()=>el.classList.remove("deeplit"),4200);
+    }
+    return;
+  }
   // A short/long filter may be hiding it — clear once so every card is visible.
   if(CURRENT&&CURRENT.role==="Scriptwriter"&&typeof SCW_FMT!=="undefined"&&SCW_FMT!=="all"){SCW_FMT="all";scriptView();return maybeDeepLink();}
   // Loaded, but not on the scripting board — it's already past scripting.
@@ -771,7 +785,7 @@ function scwCard(t,kind){
   } else {
     actions=`<div class="scwacts"><button class="act warn" onclick="scwAsk('${t.id}','rescript')">↩ Re-script</button>${rm}</div>`;
   }
-  return `<div class="kcard" data-card="${t.id}" draggable="true" ondragstart="scwDragStart(event,'${t.id}','${t.client}','${kind}')"><div class="kmeta"><span class="eff">${t.effort}</span><span class="clientchip">${t.client}</span>${fmtBadge(t)}<button class="lnkbtn" title="Copy this card's dashboard link" onclick="copyCardLink('${t.id}')">🔗</button></div><div class="kt">${t.title}</div><div class="kmeta"><span class="who ${dueInfo(t).cls}">${dueInfo(t).label}</span>${t.waitingOn&&t.waitingOn!=="Nobody"?`<span class="wait">⏳ ${t.waitingOn}</span>`:""}</div>${actions}${box}</div>`;
+  return `<div class="kcard${DEEP_HL===t.id?" deeplit":""}" data-card="${t.id}" draggable="true" ondragstart="scwDragStart(event,'${t.id}','${t.client}','${kind}')"><div class="kmeta"><span class="eff">${t.effort}</span><span class="clientchip">${t.client}</span>${fmtBadge(t)}<button class="lnkbtn" title="Copy this card's dashboard link" onclick="copyCardLink('${t.id}')">🔗</button></div><div class="kt">${t.title}</div><div class="kmeta"><span class="who ${dueInfo(t).cls}">${dueInfo(t).label}</span>${t.waitingOn&&t.waitingOn!=="Nobody"?`<span class="wait">⏳ ${t.waitingOn}</span>`:""}</div>${actions}${box}</div>`;
 }
 function scwCol(title,items,note,kind){
   const cards=items.length?items.map(t=>scwCard(t,kind)).join(""):`<div class="empty" style="padding:18px">—</div>`;

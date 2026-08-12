@@ -228,6 +228,9 @@
     *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
     .bgfx span{animation:none}
   }
+  /* Deep-link highlight — glows the card a Discord "new script" link points to. */
+  .deeplit{border-radius:14px;outline:2px solid rgba(139,92,255,.9);animation:deeplitpulse 1.15s ease-in-out 3}
+  @keyframes deeplitpulse{0%,100%{box-shadow:0 0 0 3px rgba(139,92,255,.12)}50%{box-shadow:0 0 0 7px rgba(139,92,255,.5)}}
 </style>
 </head>
 <body>
@@ -276,6 +279,18 @@ const TODAY=new Date();TODAY.setHours(0,0,0,0);
 const MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 let CURRENT=null, TASKS=[], INTAKEX=[], INTAKEALL=[];
+// Deep link: ?v=<notion-page-id> (or #v=…) opens the dashboard straight on that
+// video's card — the Discord "new script" automation posts this link.
+let DEEP_V=(function(){try{const p=new URLSearchParams(location.search);let v=p.get("v");if(!v&&location.hash)v=new URLSearchParams(location.hash.replace(/^#/,"")).get("v");return v||null;}catch(e){return null;}})();
+let DEEP_TRIED=false;
+function maybeDeepLink(){
+  if(!DEEP_V)return;
+  const want=String(DEEP_V).replace(/-/g,"").toLowerCase();
+  const el=[...document.querySelectorAll("[data-card]")].find(e=>e.getAttribute("data-card").replace(/-/g,"").toLowerCase()===want);
+  if(el){DEEP_V=null;try{el.scrollIntoView({behavior:"smooth",block:"center"});}catch(e){el.scrollIntoView();}el.classList.add("deeplit");setTimeout(()=>el.classList.remove("deeplit"),4200);return;}
+  // Card may be hidden by the short/long filter — clear it once and retry.
+  if(!DEEP_TRIED&&CURRENT&&CURRENT.role==="Scriptwriter"&&typeof SCW_FMT!=="undefined"&&SCW_FMT!=="all"){DEEP_TRIED=true;SCW_FMT="all";scriptView();maybeDeepLink();}
+}
 const loadFor=n=>TASKS.filter(t=>t.owner===n&&ACTIVE.includes(t.stage)).reduce((s,t)=>s+(EFFPTS[t.effort]||0.5),0);
 function dueInfo(t){
   if(!t.postDate)return{label:t.stage==="Intake"?"no date":"—",cls:""};
@@ -394,7 +409,7 @@ async function boot(){
   setTimeout(()=>{renderDash();countUpAll();},450);
 }
 // ===== render router =====
-function renderDash(){const r=CURRENT.role;if(r==="COO")return cooView();if(r==="Ops")return opsView();if(r==="Scriptwriter")return scriptView();return editorView();}
+function renderDash(){const r=CURRENT.role;if(r==="COO")cooView();else if(r==="Ops")opsView();else if(r==="Scriptwriter")scriptView();else editorView();maybeDeepLink();}
 const greet=s=>`<h2 class="greet">Hi ${CURRENT.name} 👋</h2><p class="greetsub">${s}</p>`;
 // ===== COO =====
 let COO_FILTER="all";
@@ -727,7 +742,7 @@ function scwCard(t,kind){
   } else {
     actions=`<div class="scwacts"><button class="act warn" onclick="scwAsk('${t.id}','rescript')">↩ Re-script</button>${rm}</div>`;
   }
-  return `<div class="kcard" draggable="true" ondragstart="scwDragStart(event,'${t.id}','${t.client}','${kind}')"><div class="kmeta"><span class="eff">${t.effort}</span><span class="clientchip">${t.client}</span>${fmtBadge(t)}</div><div class="kt">${t.title}</div><div class="kmeta"><span class="who ${dueInfo(t).cls}">${dueInfo(t).label}</span>${t.waitingOn&&t.waitingOn!=="Nobody"?`<span class="wait">⏳ ${t.waitingOn}</span>`:""}</div>${actions}${box}</div>`;
+  return `<div class="kcard" data-card="${t.id}" draggable="true" ondragstart="scwDragStart(event,'${t.id}','${t.client}','${kind}')"><div class="kmeta"><span class="eff">${t.effort}</span><span class="clientchip">${t.client}</span>${fmtBadge(t)}</div><div class="kt">${t.title}</div><div class="kmeta"><span class="who ${dueInfo(t).cls}">${dueInfo(t).label}</span>${t.waitingOn&&t.waitingOn!=="Nobody"?`<span class="wait">⏳ ${t.waitingOn}</span>`:""}</div>${actions}${box}</div>`;
 }
 function scwCol(title,items,note,kind){
   const cards=items.length?items.map(t=>scwCard(t,kind)).join(""):`<div class="empty" style="padding:18px">—</div>`;

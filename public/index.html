@@ -305,7 +305,12 @@ function maybeDeepLink(){
   if(inData){DEEP_V=null;deepToast('That video isn’t in the scripting queue — it’s at "'+(STAGEL[inData.stage]||inData.stage)+'".');setTimeout(()=>deepToast(""),7000);return;}
   // Not loaded yet — brand-new / still syncing. Pull fresh and retry a few times.
   if(DEEP_TRIES<6){DEEP_TRIES++;deepToast("🔎 Opening the linked card…");setTimeout(()=>{if(DEEP_V)reload();},1600);}
-  else{DEEP_V=null;deepToast("Couldn’t find that card here — check the link’s id, or open it in Notion.");setTimeout(()=>deepToast(""),8000);}
+  else{
+    try{console.log("[deeplink] looking for id",want,"— loaded card ids:",[...document.querySelectorAll("[data-card]")].map(e=>hex32(e.getAttribute("data-card"))));}catch(e){}
+    const id=want;DEEP_V=null;
+    deepToast("Couldn’t find id "+id+" — that’s not a video page id on any board.");
+    setTimeout(()=>deepToast(""),12000);
+  }
 }
 const loadFor=n=>TASKS.filter(t=>t.owner===n&&ACTIVE.includes(t.stage)).reduce((s,t)=>s+(EFFPTS[t.effort]||0.5),0);
 function dueInfo(t){

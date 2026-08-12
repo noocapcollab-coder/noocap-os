@@ -431,7 +431,11 @@ function cooView(){
     <div class="stagepill"><b>${wip}</b><span>🎬 In production</span></div></div>`;
   // --- pipeline funnel: count per stage, bottleneck flagged, click to drill in ---
   const funStages=[["Intake","🌱 New idea"],["Scripting","✍️ Scripting"],["Ready to Edit","🎬 Ready to edit"],["Editing","✂️ Editing"],["Review","👀 Review"],["Ready to Post","✅ Ready to post"]];
-  const funnel=`<div class="funnel">${funStages.map(([s,l],i)=>{const n=TASKS.filter(t=>t.stage===s).length,isB=(s===bn.s&&bn.n>0);return `<div class="fstep ${COO_FILTER===s?'active':''} ${isB?'bn':''}" onclick="setCooFilter('${s}')" title="Click to see these videos below"><div class="fn">${n}</div><div class="fl">${l}${isB?' ⛔':''}</div></div>${i<funStages.length-1?'<span class="farr">›</span>':''}`;}).join("")}</div>`;
+  // "Review" is the real review workload — the editor submissions in the "In
+  // review & changes" panel (Video Intake), which is what clicking it opens — so
+  // its count comes from INTAKEX, not the client-board Review stage. Every other
+  // step counts board videos at that stage.
+  const funnel=`<div class="funnel">${funStages.map(([s,l],i)=>{const n=(s==="Review"?INTAKEX.length:TASKS.filter(t=>t.stage===s).length),isB=(s===bn.s&&bn.n>0);return `<div class="fstep ${COO_FILTER===s?'active':''} ${isB?'bn':''}" onclick="setCooFilter('${s}')" title="Click to see these videos below"><div class="fn">${n}</div><div class="fl">${l}${isB?' ⛔':''}</div></div>${i<funStages.length-1?'<span class="farr">›</span>':''}`;}).join("")}</div>`;
   // Tiles = problems only. Stage filtering (editing / scripting / etc.) lives in
   // the pipeline funnel above, so those stage tiles were removed to avoid the
   // "clicking two different things does the same thing" overlap.
